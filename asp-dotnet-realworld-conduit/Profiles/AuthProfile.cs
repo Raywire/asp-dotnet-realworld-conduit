@@ -12,6 +12,7 @@ namespace asp_dotnet_realworld_conduit.Profiles
         {
             CreateMap<User, UserLoginRequestDto>();
             CreateMap<User, UserLoginInfoDto>();
+            CreateMap<UserRegisterRequestDto, User>();
         }
     }
 }

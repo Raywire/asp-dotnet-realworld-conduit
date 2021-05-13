@@ -77,6 +77,42 @@ namespace asp_dotnet_realworld_conduit.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("signup")]
+        public async Task<IActionResult> Register([FromBody] UserRegisterRequestDto userData)
+        {
+            User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == userData.Email || user.UserName == userData.UserName);
+            if (user != null)
+            {
+                Errors errors = new Errors();
+                errors.Message = "User exists";
+                return BadRequest(new ErrorResponse()
+                {
+                    Errors = errors,
+                    Success = false
+                });
+            }
+
+            var userDataModel = _mapper.Map<User>(userData);
+
+            userDataModel.Password = BCrypt.Net.BCrypt.HashPassword(userData.Password);
+            DateTime now = DateTime.UtcNow;
+            userDataModel.CreatedAt = now;
+            userDataModel.UpdatedAt = now;
+            _context.Users.Add(userDataModel);
+            await _context.SaveChangesAsync();
+
+            User createdUser = await GetUser(userData.Email);
+            var jwtToken = GenerateJwtToken(createdUser);
+
+            return Ok(new UserRegisterResponse()
+            {
+                Success = true,
+                Token = jwtToken,
+                User = _mapper.Map<UserLoginInfoDto>(createdUser)
+            });
+        }
+
         private async Task<User> GetUser(string email)
         {
             User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email || user.UserName == email);
