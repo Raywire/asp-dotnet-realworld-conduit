@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Conduit.Models
@@ -37,6 +38,8 @@ namespace Conduit.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+        public ICollection<Article> Articles { get; set; } = new List<Article>();
     }
 }
