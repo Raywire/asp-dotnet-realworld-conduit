@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Conduit.Models
 {
-    public class Users
+    public class User
     {
         [Key]
         public Guid Id { get; set; }

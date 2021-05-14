@@ -10,8 +10,8 @@ namespace asp_dotnet_realworld_conduit.Profiles
     {
         public UsersProfile()
         {
-            CreateMap<Users, UsersResponseDto>();
-            CreateMap<UserUpdateRequestDto, Users>();
+            CreateMap<User, UsersResponseDto>();
+            CreateMap<UserUpdateRequestDto, User>();
         }
     }
 }

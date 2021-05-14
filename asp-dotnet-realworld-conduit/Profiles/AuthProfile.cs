@@ -10,9 +10,9 @@ namespace asp_dotnet_realworld_conduit.Profiles
     {
         public AuthProfile()
         {
-            CreateMap<Users, UserLoginRequestDto>();
-            CreateMap<Users, UserLoginInfoDto>();
-            CreateMap<UserRegisterRequestDto, Users>();
+            CreateMap<User, UserLoginRequestDto>();
+            CreateMap<User, UserLoginInfoDto>();
+            CreateMap<UserRegisterRequestDto, User>();
         }
     }
 }

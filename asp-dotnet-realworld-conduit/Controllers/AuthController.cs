@@ -38,7 +38,7 @@ namespace Conduit.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(UserLoginRequestDto userData)
         {
-            Users user = await GetUser(userData.Email);
+            User user = await GetUser(userData.Email);
 
             if (user != null)
             {
@@ -77,7 +77,7 @@ namespace Conduit.Controllers
         [Route("signup")]
         public async Task<IActionResult> Register([FromBody] UserRegisterRequestDto userData)
         {
-            Users user = await _context.Users.FirstOrDefaultAsync(user => user.Email == userData.Email || user.UserName == userData.UserName);
+            User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == userData.Email || user.UserName == userData.UserName);
             if (user != null)
             {
                 return BadRequest(new ErrorResponse()
@@ -87,7 +87,7 @@ namespace Conduit.Controllers
                 });
             }
 
-            var userDataModel = _mapper.Map<Users>(userData);
+            var userDataModel = _mapper.Map<User>(userData);
 
             userDataModel.Password = BCrypt.Net.BCrypt.HashPassword(userData.Password);
             DateTime now = DateTime.UtcNow;
@@ -96,7 +96,7 @@ namespace Conduit.Controllers
             _context.Users.Add(userDataModel);
             await _context.SaveChangesAsync();
 
-            Users createdUser = await GetUser(userData.Email);
+            User createdUser = await GetUser(userData.Email);
             var jwtToken = GenerateJwtToken(createdUser);
 
             return Ok(new UserRegisterResponse()
@@ -107,9 +107,9 @@ namespace Conduit.Controllers
             });
         }
 
-        private async Task<Users> GetUser(string email)
+        private async Task<User> GetUser(string email)
         {
-            Users user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email || user.UserName == email);
+            User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email || user.UserName == email);
 
             if (user == null)
             {
@@ -119,7 +119,7 @@ namespace Conduit.Controllers
             return user;
         }
 
-        private string GenerateJwtToken(Users user)
+        private string GenerateJwtToken(User user)
         {
             string userRole = user.Admin ? "admin" : "user";
             //create claims details based on the user information
