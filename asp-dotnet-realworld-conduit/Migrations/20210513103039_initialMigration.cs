@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace asp_dotnet_realworld_conduit.Migrations
+namespace Conduit.Migrations
 {
     public partial class initialMigration : Migration
     {

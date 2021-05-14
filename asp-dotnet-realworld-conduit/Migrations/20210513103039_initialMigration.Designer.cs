@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using asp_dotnet_realworld_conduit.Data;
+using Conduit.Data;
 
-namespace asp_dotnet_realworld_conduit.Migrations
+namespace Conduit.Migrations
 {
     [DbContext(typeof(ConduitContext))]
     [Migration("20210513103039_initialMigration")]

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.809.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "asp-dotnet-realworld-conduit", "asp-dotnet-realworld-conduit\asp-dotnet-realworld-conduit.csproj", "{A0B2A2B9-077F-4671-92B4-3994CB8E0A5A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conduit", "asp-dotnet-realworld-conduit\Conduit.csproj", "{A0B2A2B9-077F-4671-92B4-3994CB8E0A5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

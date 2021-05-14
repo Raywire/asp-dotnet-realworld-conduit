@@ -5,10 +5,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using asp_dotnet_realworld_conduit.Data;
-using asp_dotnet_realworld_conduit.DTOs.Requests;
-using asp_dotnet_realworld_conduit.DTOs.Responses;
-using asp_dotnet_realworld_conduit.Models;
+using Conduit.Data;
+using Conduit.DTOs.Requests;
+using Conduit.DTOs.Responses;
+using Conduit.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace asp_dotnet_realworld_conduit.Controllers
+namespace Conduit.Controllers
 {
     [Route("[controller]")]
     [ApiController]

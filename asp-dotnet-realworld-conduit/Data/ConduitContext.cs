@@ -1,8 +1,8 @@
 ﻿using System;
-using asp_dotnet_realworld_conduit.Models;
+using Conduit.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace asp_dotnet_realworld_conduit.Data
+namespace Conduit.Data
 {
     public partial class ConduitContext : DbContext
     {

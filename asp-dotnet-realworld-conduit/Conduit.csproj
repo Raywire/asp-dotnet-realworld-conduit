@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>asp_dotnet_realworld_conduit</RootNamespace>
+    <RootNamespace>Conduit</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

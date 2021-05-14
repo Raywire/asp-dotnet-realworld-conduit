@@ -1,5 +1,5 @@
 ﻿using System;
-namespace asp_dotnet_realworld_conduit.DTOs.Responses
+namespace Conduit.DTOs.Responses
 {
     public class UserResponse
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace asp_dotnet_realworld_conduit.Models
+namespace Conduit.Models
 {
     public class Users
     {

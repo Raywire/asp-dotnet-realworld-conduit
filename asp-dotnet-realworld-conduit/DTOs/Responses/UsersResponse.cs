@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using asp_dotnet_realworld_conduit.Models;
+using Conduit.Models;
 
-namespace asp_dotnet_realworld_conduit.DTOs.Responses
+namespace Conduit.DTOs.Responses
 {
     public class UsersResponse
     {

@@ -1,7 +1,7 @@
 ﻿using System;
-using asp_dotnet_realworld_conduit.DTOs.Responses;
+using Conduit.DTOs.Responses;
 
-namespace asp_dotnet_realworld_conduit.Models
+namespace Conduit.Models
 {
     public class AuthResult
     {

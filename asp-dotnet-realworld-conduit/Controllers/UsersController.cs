@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using asp_dotnet_realworld_conduit.Data;
-using asp_dotnet_realworld_conduit.Models;
+using Conduit.Data;
+using Conduit.Models;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
-using asp_dotnet_realworld_conduit.DTOs.Responses;
-using asp_dotnet_realworld_conduit.DTOs.Requests;
+using Conduit.DTOs.Responses;
+using Conduit.DTOs.Requests;
 
-namespace asp_dotnet_realworld_conduit.Controllers
+namespace Conduit.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace asp_dotnet_realworld_conduit
+namespace Conduit
 {
     public class Program
     {
