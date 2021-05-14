@@ -14,7 +14,7 @@ using Conduit.DTOs.Requests;
 
 namespace Conduit.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = UserRoles.Admin)]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase

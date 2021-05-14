@@ -127,6 +127,7 @@ namespace Conduit.Controllers
 
         private string GenerateJwtToken(Users user)
         {
+            string userRole = user.Admin ? "admin" : "user";
             //create claims details based on the user information
             var claims = new[] {
                     new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
@@ -136,7 +137,8 @@ namespace Conduit.Controllers
                     new Claim("FirstName", user.FirstName),
                     new Claim("LastName", user.LastName),
                     new Claim("UserName", user.UserName),
-                    new Claim("Email", user.Email)
+                    new Claim("Email", user.Email),
+                    new Claim(ClaimTypes.Role, userRole)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
