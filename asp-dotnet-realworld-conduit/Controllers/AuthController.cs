@@ -56,22 +56,18 @@ namespace Conduit.Controllers
                 }
                 else
                 {
-                    Errors errors = new Errors();
-                    errors.Message = "Invalid credentials";
-                    return BadRequest(new ErrorResponse()
+                    return Unauthorized(new ErrorResponse()
                     {
-                        Errors = errors,
+                        Errors = new Errors() { Message = "Invalid credentials" },
                         Success = false
                     });
                 }
             }
             else
             {
-                Errors errors = new Errors();
-                errors.Message = "Invalid credentials";
-                return BadRequest(new ErrorResponse()
+                return Unauthorized(new ErrorResponse()
                 {
-                    Errors = errors,
+                    Errors = new Errors() { Message = "Invalid credentials" },
                     Success = false
                 });
             }
@@ -84,11 +80,9 @@ namespace Conduit.Controllers
             Users user = await _context.Users.FirstOrDefaultAsync(user => user.Email == userData.Email || user.UserName == userData.UserName);
             if (user != null)
             {
-                Errors errors = new Errors();
-                errors.Message = "User exists";
                 return BadRequest(new ErrorResponse()
                 {
-                    Errors = errors,
+                    Errors = new Errors() { Message = "User exists" },
                     Success = false
                 });
             }
@@ -152,7 +146,7 @@ namespace Conduit.Controllers
             return jwtToken;
         }
 
-        private bool VerifyPassword(string password, string passwordHash)
+        private static bool VerifyPassword(string password, string passwordHash)
         {
             return BCrypt.Net.BCrypt.Verify(password, passwordHash);
         }
