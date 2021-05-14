@@ -11,11 +11,11 @@ namespace asp_dotnet_realworld_conduit.Data
 
         }
 
-        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Users> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>(entity =>
+            modelBuilder.Entity<Users>(entity =>
             {
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")

@@ -38,7 +38,7 @@ namespace asp_dotnet_realworld_conduit.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(UserLoginRequestDto userData)
         {
-            User user = await GetUser(userData.Email);
+            Users user = await GetUser(userData.Email);
 
             if (user != null)
             {
@@ -81,7 +81,7 @@ namespace asp_dotnet_realworld_conduit.Controllers
         [Route("signup")]
         public async Task<IActionResult> Register([FromBody] UserRegisterRequestDto userData)
         {
-            User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == userData.Email || user.UserName == userData.UserName);
+            Users user = await _context.Users.FirstOrDefaultAsync(user => user.Email == userData.Email || user.UserName == userData.UserName);
             if (user != null)
             {
                 Errors errors = new Errors();
@@ -93,7 +93,7 @@ namespace asp_dotnet_realworld_conduit.Controllers
                 });
             }
 
-            var userDataModel = _mapper.Map<User>(userData);
+            var userDataModel = _mapper.Map<Users>(userData);
 
             userDataModel.Password = BCrypt.Net.BCrypt.HashPassword(userData.Password);
             DateTime now = DateTime.UtcNow;
@@ -102,7 +102,7 @@ namespace asp_dotnet_realworld_conduit.Controllers
             _context.Users.Add(userDataModel);
             await _context.SaveChangesAsync();
 
-            User createdUser = await GetUser(userData.Email);
+            Users createdUser = await GetUser(userData.Email);
             var jwtToken = GenerateJwtToken(createdUser);
 
             return Ok(new UserRegisterResponse()
@@ -113,9 +113,9 @@ namespace asp_dotnet_realworld_conduit.Controllers
             });
         }
 
-        private async Task<User> GetUser(string email)
+        private async Task<Users> GetUser(string email)
         {
-            User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email || user.UserName == email);
+            Users user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email || user.UserName == email);
 
             if (user == null)
             {
@@ -125,7 +125,7 @@ namespace asp_dotnet_realworld_conduit.Controllers
             return user;
         }
 
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(Users user)
         {
             //create claims details based on the user information
             var claims = new[] {

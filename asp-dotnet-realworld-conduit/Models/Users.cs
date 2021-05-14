@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace asp_dotnet_realworld_conduit.Models
 {
-    public class User
+    public class Users
     {
         [Key]
         public Guid Id { get; set; }

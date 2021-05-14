@@ -6,13 +6,12 @@ using AutoMapper;
 
 namespace asp_dotnet_realworld_conduit.Profiles
 {
-    public class AuthProfile : Profile
+    public class UsersProfile : Profile
     {
-        public AuthProfile()
+        public UsersProfile()
         {
-            CreateMap<Users, UserLoginRequestDto>();
-            CreateMap<Users, UserLoginInfoDto>();
-            CreateMap<UserRegisterRequestDto, Users>();
+            CreateMap<Users, UsersResponseDto>();
+            CreateMap<UserUpdateRequestDto, Users>();
         }
     }
 }
