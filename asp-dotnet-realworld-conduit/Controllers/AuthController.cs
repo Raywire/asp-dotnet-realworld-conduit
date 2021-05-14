@@ -90,9 +90,7 @@ namespace Conduit.Controllers
             var userDataModel = _mapper.Map<User>(userData);
 
             userDataModel.Password = BCrypt.Net.BCrypt.HashPassword(userData.Password);
-            DateTime now = DateTime.UtcNow;
-            userDataModel.CreatedAt = now;
-            userDataModel.UpdatedAt = now;
+
             _context.Users.Add(userDataModel);
             await _context.SaveChangesAsync();
 
