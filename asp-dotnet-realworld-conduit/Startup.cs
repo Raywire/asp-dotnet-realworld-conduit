@@ -7,8 +7,10 @@ using Conduit.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +35,55 @@ namespace Conduit
         {
             var connection = Configuration.GetConnectionString("ConduitConnection");
             services.AddDbContext<ConduitContext>(options => options.UseSqlServer(connection));
-            services.AddControllers();
+            services.AddControllers(setupAction =>
+            {
+                setupAction.ReturnHttpNotAcceptable = true;
+                setupAction.CacheProfiles.Add("240SecondsCacheProfile", new CacheProfile() { Duration = 240 });
+            })
+            //    .AddNewtonsoftJson(setupAction =>
+            //{
+            //    setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //})
+            //.AddXmlDataContractSerializerFormatters()
+            .ConfigureApiBehaviorOptions(setupAction =>
+            {
+                setupAction.InvalidModelStateResponseFactory = context =>
+                {
+                    // create a problem details object
+                    var problemDetailsFactory = context.HttpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
+                    var problemDetails = problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, context.ModelState);
+
+                    // add additional info not added by default
+                    problemDetails.Detail = "See the errors field for details.";
+                    problemDetails.Instance = context.HttpContext.Request.Path;
+
+                    // find out which status code to use
+                    var actionExecutingContext = context as Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext;
+
+                    // if there aer modelstate errors & all arguments were correctly
+                    // found/parsed we're dealing with validation errors
+                    if ((context.ModelState.ErrorCount > 0) && (actionExecutingContext?.ActionArguments.Count == context.ActionDescriptor.Parameters.Count))
+                    {
+                        problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
+                        problemDetails.Status = StatusCodes.Status422UnprocessableEntity;
+                        problemDetails.Title = "One of more validation errors occurred.";
+
+                        return new UnprocessableEntityObjectResult(problemDetails)
+                        {
+                            ContentTypes = { "application/problem+json" }
+                        };
+                    }
+
+                    // if one of the arguments wasn't correctly found / couldn't be parsed
+                    // we're dealing with null/unparseable input
+                    problemDetails.Status = StatusCodes.Status400BadRequest;
+                    problemDetails.Title = "One or more errors on input occurred.";
+                    return new BadRequestObjectResult(problemDetails)
+                    {
+                        ContentTypes = { "application/problem+json" }
+                    };
+                };
+            });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
