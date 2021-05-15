@@ -179,6 +179,106 @@ namespace Conduit.Controllers
             return NoContent();
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("{articleId}/comments")]
+        public async Task<IActionResult> GetArticleComments(Guid articleId)
+        {
+            var article = await _context.Article.FindAsync(articleId);
+
+            if (article == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Article not found" }
+                });
+            }
+
+            var comments = await _context.Comments.Include(c => c.Author).Where(c => c.ArticleId == articleId).ToListAsync();
+
+            return Ok(new CommentsResponse()
+            {
+                Success = true,
+                Comments = _mapper.Map<IEnumerable<CommentsResponseDto>>(comments)
+            });
+        }
+
+        [HttpPost]
+        [Route("{articleId}/comments")]
+        public async Task<IActionResult> PostArticleComment(Guid articleId, CommentCreateRequestDto commentCreateDto)
+        {
+            var article = await _context.Article.FindAsync(articleId);
+
+            if (article == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Article not found" }
+                });
+            }
+
+            // Get current user Id
+            var userId = GetCurrentUserId();
+
+            var commentModel = _mapper.Map<Comment>(commentCreateDto);
+            commentModel.AuthorId = Guid.Parse(userId);
+            commentModel.ArticleId = articleId;
+
+            _context.Comments.Add(commentModel);
+            await _context.SaveChangesAsync();
+
+            var commentReadDto = _mapper.Map<CommentsResponseDto>(commentModel);
+
+            return CreatedAtAction("GetArticle", new { id = commentReadDto.Id }, new CommentResponse()
+            {
+                Success = true,
+                Comment = commentReadDto
+            });
+        }
+
+        [HttpDelete]
+        [Route("{articleId}/comments/{id}")]
+        public async Task<IActionResult> DeleteComment(Guid articleId, Guid id)
+        {
+            var article = await _context.Article.FindAsync(articleId);
+
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId != article.AuthorId.ToString())
+            {
+                return StatusCode(403, new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Only the owner can delete this comment" }
+                });
+            }
+
+            if (article == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Article not found" }
+                });
+            }
+
+            var comment = await _context.Comments.FindAsync(id);
+            if (comment == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Comment not found" }
+                });
+            }
+
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private bool ArticleExists(Guid id)
         {
             return _context.Article.Any(e => e.Id == id);
