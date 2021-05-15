@@ -74,6 +74,16 @@ namespace Conduit.Controllers
         {
             var article = await _context.Article.FindAsync(id);
 
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId != article.AuthorId.ToString())
+            {
+                return StatusCode(403, new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Only the owner can update this article" }
+                });
+            }
+
             if (article == null)
             {
                 return NotFound(new ErrorResponse()
@@ -119,9 +129,7 @@ namespace Conduit.Controllers
         public async Task<ActionResult<ArticlesResponse>> PostArticle(ArticleCreateRequestDto articleCreateDto)
         {
             // Get current user Id
-            var identity = User.Identity as ClaimsIdentity;
-            IEnumerable<Claim> claims = identity.Claims;
-            var userId = claims.Where(p => p.Type == "Id").FirstOrDefault()?.Value;
+            var userId = GetCurrentUserId();
 
             var articleModel = _mapper.Map<Article>(articleCreateDto);
             articleModel.AuthorId = Guid.Parse(userId);
@@ -145,6 +153,17 @@ namespace Conduit.Controllers
         public async Task<IActionResult> DeleteArticle(Guid id)
         {
             var article = await _context.Article.FindAsync(id);
+
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId != article.AuthorId.ToString())
+            {
+                return StatusCode(403, new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Only the owner can delete this article" }
+                });
+            }
+
             if (article == null)
             {
                 return NotFound(new ErrorResponse()
@@ -170,6 +189,14 @@ namespace Conduit.Controllers
             SlugHelper helper = new SlugHelper();
             var slug = $"{helper.GenerateSlug(Title)}-{Guid.NewGuid().ToString().Substring(0, 6)}";
             return slug;
+        }
+
+        public string GetCurrentUserId (){
+            var identity = User.Identity as ClaimsIdentity;
+            IEnumerable<Claim> claims = identity.Claims;
+            var userId = claims.Where(p => p.Type == "Id").FirstOrDefault()?.Value;
+
+            return userId;
         }
     }
 }
