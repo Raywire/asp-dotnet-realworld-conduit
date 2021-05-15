@@ -191,7 +191,7 @@ namespace Conduit.Controllers
             return slug;
         }
 
-        public string GetCurrentUserId (){
+        private string GetCurrentUserId (){
             var identity = User.Identity as ClaimsIdentity;
             IEnumerable<Claim> claims = identity.Claims;
             var userId = claims.Where(p => p.Type == "Id").FirstOrDefault()?.Value;
