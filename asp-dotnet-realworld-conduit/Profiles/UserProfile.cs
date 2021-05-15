@@ -6,9 +6,9 @@ using AutoMapper;
 
 namespace asp_dotnet_realworld_conduit.Profiles
 {
-    public class UsersProfile : Profile
+    public class UserProfile : Profile
     {
-        public UsersProfile()
+        public UserProfile()
         {
             CreateMap<User, UsersResponseDto>();
             CreateMap<UserUpdateRequestDto, User>();

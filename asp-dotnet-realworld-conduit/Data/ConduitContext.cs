@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +15,7 @@ namespace Conduit.Data
         }
 
         public virtual DbSet<User> Users { get; set; }
+        public DbSet<Article> Article { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
