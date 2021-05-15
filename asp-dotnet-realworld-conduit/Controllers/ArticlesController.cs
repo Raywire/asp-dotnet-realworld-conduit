@@ -44,12 +44,12 @@ namespace Conduit.Controllers
             });
         }
 
-        // GET: api/Articles/5
+        // GET: api/Articles/hello-world
         [AllowAnonymous]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ArticleResponse>> GetArticle(Guid id)
+        [HttpGet("{slug}")]
+        public async Task<ActionResult<ArticleResponse>> GetArticle(string slug)
         {
-            var article = await _context.Article.Include(a => a.Author).Where(a => a.Id == id).FirstOrDefaultAsync();
+            var article = await _context.Article.Include(a => a.Author).Where(a => a.Slug == slug).FirstOrDefaultAsync();
 
             if (article == null)
             {
@@ -69,10 +69,10 @@ namespace Conduit.Controllers
 
         // PUT: api/Articles/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutArticle(Guid id, ArticleUpdateRequestDto articleUpdateRequestDto)
+        [HttpPut("{slug}")]
+        public async Task<IActionResult> PutArticle(string slug, ArticleUpdateRequestDto articleUpdateRequestDto)
         {
-            var article = await _context.Article.FindAsync(id);
+            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
 
             var currentUserId = GetCurrentUserId();
             if (currentUserId != article.AuthorId.ToString())
@@ -106,7 +106,7 @@ namespace Conduit.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ArticleExists(id))
+                if (!ArticleExists(article.Id))
                 {
                     return NotFound(new ErrorResponse()
                     {
@@ -149,10 +149,10 @@ namespace Conduit.Controllers
         }
 
         // DELETE: api/Articles/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteArticle(Guid id)
+        [HttpDelete("{slug}")]
+        public async Task<IActionResult> DeleteArticle(string slug)
         {
-            var article = await _context.Article.FindAsync(id);
+            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
 
             var currentUserId = GetCurrentUserId();
             if (currentUserId != article.AuthorId.ToString())
@@ -181,10 +181,10 @@ namespace Conduit.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        [Route("{articleId}/comments")]
-        public async Task<IActionResult> GetArticleComments(Guid articleId)
+        [Route("{slug}/comments")]
+        public async Task<IActionResult> GetArticleComments(string slug)
         {
-            var article = await _context.Article.FindAsync(articleId);
+            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
 
             if (article == null)
             {
@@ -195,7 +195,7 @@ namespace Conduit.Controllers
                 });
             }
 
-            var comments = await _context.Comments.Include(c => c.Author).Where(c => c.ArticleId == articleId).ToListAsync();
+            var comments = await _context.Comments.Include(c => c.Author).Where(c => c.ArticleId == article.Id).ToListAsync();
 
             return Ok(new CommentsResponse()
             {
@@ -205,10 +205,10 @@ namespace Conduit.Controllers
         }
 
         [HttpPost]
-        [Route("{articleId}/comments")]
-        public async Task<IActionResult> PostArticleComment(Guid articleId, CommentCreateRequestDto commentCreateDto)
+        [Route("{slug}/comments")]
+        public async Task<IActionResult> PostArticleComment(string slug, CommentCreateRequestDto commentCreateDto)
         {
-            var article = await _context.Article.FindAsync(articleId);
+            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
 
             if (article == null)
             {
@@ -224,14 +224,14 @@ namespace Conduit.Controllers
 
             var commentModel = _mapper.Map<Comment>(commentCreateDto);
             commentModel.AuthorId = Guid.Parse(userId);
-            commentModel.ArticleId = articleId;
+            commentModel.ArticleId = article.Id;
 
             _context.Comments.Add(commentModel);
             await _context.SaveChangesAsync();
 
             var commentReadDto = _mapper.Map<CommentsResponseDto>(commentModel);
 
-            return CreatedAtAction("GetArticle", new { id = commentReadDto.Id }, new CommentResponse()
+            return StatusCode(201, new CommentResponse()
             {
                 Success = true,
                 Comment = commentReadDto
@@ -239,10 +239,10 @@ namespace Conduit.Controllers
         }
 
         [HttpDelete]
-        [Route("{articleId}/comments/{id}")]
-        public async Task<IActionResult> DeleteComment(Guid articleId, Guid id)
+        [Route("{slug}/comments/{id}")]
+        public async Task<IActionResult> DeleteComment(string slug, Guid id)
         {
-            var article = await _context.Article.FindAsync(articleId);
+            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
 
             var currentUserId = GetCurrentUserId();
             if (currentUserId != article.AuthorId.ToString())
