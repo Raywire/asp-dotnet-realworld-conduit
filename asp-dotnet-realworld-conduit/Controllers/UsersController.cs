@@ -68,15 +68,6 @@ namespace Conduit.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(Guid id, UserUpdateRequestDto userUpdateRequestDto)
         {
-            if (id != userUpdateRequestDto.Id)
-            {
-                return BadRequest(new ErrorResponse()
-                {
-                    Success = false,
-                    Errors = new Errors() { Message = "User ids do not match" }
-                });
-            }
-
             var user = await _context.Users.FindAsync(id);
 
             if (user == null)

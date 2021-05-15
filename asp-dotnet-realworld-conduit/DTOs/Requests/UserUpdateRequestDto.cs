@@ -6,15 +6,20 @@ namespace Conduit.DTOs.Requests
     public class UserUpdateRequestDto
     {
         [Required]
-        public Guid Id { get; set; }
-
         [MaxLength(32)]
         public string FirstName { get; set; }
 
+        [Required]
         [MaxLength(32)]
         public string LastName { get; set; }
 
+        [Required]
         [MaxLength(32)]
         public string UserName { get; set; }
+
+        [Required]
+        [MaxLength(128)]
+        [EmailAddress]
+        public string Email { get; set; }
     }
 }
