@@ -35,17 +35,9 @@ namespace Conduit
         {
             var connection = Configuration.GetConnectionString("ConduitConnection");
             services.AddDbContext<ConduitContext>(options => options.UseSqlServer(connection));
-            services.AddControllers(setupAction =>
-            {
-                setupAction.ReturnHttpNotAcceptable = true;
-                setupAction.CacheProfiles.Add("240SecondsCacheProfile", new CacheProfile() { Duration = 240 });
-            })
-            //    .AddNewtonsoftJson(setupAction =>
-            //{
-            //    setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            //})
-            //.AddXmlDataContractSerializerFormatters()
-            .ConfigureApiBehaviorOptions(setupAction =>
+
+            services.AddCors();
+            services.AddControllers().ConfigureApiBehaviorOptions(setupAction =>
             {
                 setupAction.InvalidModelStateResponseFactory = context =>
                 {
@@ -151,6 +143,11 @@ namespace Conduit
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             app.UseAuthentication();
 
