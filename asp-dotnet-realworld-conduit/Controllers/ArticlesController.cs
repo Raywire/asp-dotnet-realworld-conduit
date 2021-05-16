@@ -32,9 +32,9 @@ namespace Conduit.Controllers
         // GET: api/Articles
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<ArticlesResponse>> GetArticles([FromQuery(Name = "author")] string author)
+        public async Task<ActionResult<ArticlesResponse>> GetArticles([FromQuery(Name = "author")] string author, [FromQuery(Name = "search")] string search)
         {
-            var articles = await _repository.GetArticlesAsync(author);
+            var articles = await _repository.GetArticlesAsync(author, search);
 
             return Ok(new ArticlesResponse()
             {

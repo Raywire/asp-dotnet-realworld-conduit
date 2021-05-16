@@ -57,16 +57,32 @@ namespace Conduit.Services
             return await _context.Comments.Include(c => c.Author).Where(c => c.ArticleId == articleId).ToListAsync();
         }
 
-        public async Task<IEnumerable<Article>> GetArticlesAsync(string author)
+        public async Task<IEnumerable<Article>> GetArticlesAsync(string author, string search)
         {
-            if (string.IsNullOrWhiteSpace(author))
+            if (string.IsNullOrWhiteSpace(author) && string.IsNullOrWhiteSpace(search))
             {
                 return await _context.Article.Include(a => a.Author).ToListAsync();
             }
 
-            author = author.Trim();
+            var collection = _context.Article as IQueryable<Article>;
 
-            return await _context.Article.Include(a => a.Author).Where(a => a.Author.FirstName == author).ToListAsync();
+            if (!string.IsNullOrWhiteSpace(author))
+            {
+                author = author.Trim();
+                collection = collection.Include(a => a.Author).Where(a => a.Author.FirstName == author || a.Author.LastName == author);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+                collection = collection.Include(a => a.Author).Where(a => a.Author.FirstName.Contains(search)
+                    || a.Author.LastName.Contains(search)
+                    || a.Author.UserName.Contains(search)
+                    || a.Title.Contains(search));
+            }
+
+            return await collection.ToListAsync();
+
         }
 
         public async Task<int> SaveChangesAsync()

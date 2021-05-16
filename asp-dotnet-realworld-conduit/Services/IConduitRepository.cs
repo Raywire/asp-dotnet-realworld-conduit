@@ -7,7 +7,7 @@ namespace Conduit.Services
 {
     public interface IConduitRepository
     {
-        Task<IEnumerable<Article>> GetArticlesAsync(string author);
+        Task<IEnumerable<Article>> GetArticlesAsync(string author, string search);
         Task<Article> GetArticleAsync(string slug);
         Task AddArticleAsync(Article article);
         void DeleteArticle(Article article);
