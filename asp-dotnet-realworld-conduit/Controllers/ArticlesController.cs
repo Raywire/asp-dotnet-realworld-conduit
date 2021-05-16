@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Conduit.Data;
 using Conduit.Models;
 using AutoMapper;
 using Conduit.DTOs.Responses;
@@ -13,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Conduit.DTOs.Requests;
 using System.Security.Claims;
 using Slugify;
+using Conduit.Services;
 
 namespace Conduit.Controllers
 {
@@ -21,21 +20,21 @@ namespace Conduit.Controllers
     [ApiController]
     public class ArticlesController : ControllerBase
     {
-        private readonly ConduitContext _context;
         private readonly IMapper _mapper;
+        private readonly IConduitRepository _repository;
 
-        public ArticlesController(ConduitContext context, IMapper mapper)
+        public ArticlesController(IMapper mapper, IConduitRepository repository)
         {
-            _context = context;
             _mapper = mapper;
+            _repository = repository;
         }
 
         // GET: api/Articles
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<ArticlesResponse>> GetArticle()
+        public async Task<ActionResult<ArticlesResponse>> GetArticles([FromQuery(Name = "author")] string author)
         {
-            var articles = await _context.Article.Include(a => a.Author).ToListAsync();
+            var articles = await _repository.GetArticlesAsync(author);
 
             return Ok(new ArticlesResponse()
             {
@@ -49,7 +48,7 @@ namespace Conduit.Controllers
         [HttpGet("{slug}")]
         public async Task<ActionResult<ArticleResponse>> GetArticle(string slug)
         {
-            var article = await _context.Article.Include(a => a.Author).Where(a => a.Slug == slug).FirstOrDefaultAsync();
+            var article = await _repository.GetArticleAsync(slug);
 
             if (article == null)
             {
@@ -72,7 +71,16 @@ namespace Conduit.Controllers
         [HttpPut("{slug}")]
         public async Task<IActionResult> PutArticle(string slug, ArticleUpdateRequestDto articleUpdateRequestDto)
         {
-            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
+            var article = await _repository.GetArticleAsync(slug);
+
+            if (article == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Article not found" }
+                });
+            }
 
             var currentUserId = GetCurrentUserId();
             if (currentUserId != article.AuthorId.ToString())
@@ -81,15 +89,6 @@ namespace Conduit.Controllers
                 {
                     Success = false,
                     Errors = new Errors() { Message = "Only the owner can update this article" }
-                });
-            }
-
-            if (article == null)
-            {
-                return NotFound(new ErrorResponse()
-                {
-                    Success = false,
-                    Errors = new Errors() { Message = "Article not found" }
                 });
             }
 
@@ -102,7 +101,7 @@ namespace Conduit.Controllers
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -136,12 +135,12 @@ namespace Conduit.Controllers
 
             articleModel.Slug = GenerateSlug(articleModel.Title);
 
-            _context.Article.Add(articleModel);
-            await _context.SaveChangesAsync();
+            await _repository.AddArticleAsync(articleModel);
+            await _repository.SaveChangesAsync();
 
             var articleReadDto = _mapper.Map<ArticlesResponseDto>(articleModel);
 
-            return CreatedAtAction("GetArticle", new { id = articleReadDto.Id }, new ArticleResponse()
+            return CreatedAtAction("GetArticle", new { slug = articleReadDto.Slug }, new ArticleResponse()
             {
                 Success = true,
                 Article = articleReadDto
@@ -152,7 +151,16 @@ namespace Conduit.Controllers
         [HttpDelete("{slug}")]
         public async Task<IActionResult> DeleteArticle(string slug)
         {
-            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
+            var article = await _repository.GetArticleAsync(slug);
+
+            if (article == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Article not found" }
+                });
+            }
 
             var currentUserId = GetCurrentUserId();
             if (currentUserId != article.AuthorId.ToString())
@@ -164,17 +172,8 @@ namespace Conduit.Controllers
                 });
             }
 
-            if (article == null)
-            {
-                return NotFound(new ErrorResponse()
-                {
-                    Success = false,
-                    Errors = new Errors() { Message = "Article not found" }
-                });
-            }
-
-            _context.Article.Remove(article);
-            await _context.SaveChangesAsync();
+            _repository.DeleteArticle(article);
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -184,7 +183,7 @@ namespace Conduit.Controllers
         [Route("{slug}/comments")]
         public async Task<IActionResult> GetArticleComments(string slug)
         {
-            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
+            var article = await _repository.GetArticleAsync(slug);
 
             if (article == null)
             {
@@ -195,7 +194,7 @@ namespace Conduit.Controllers
                 });
             }
 
-            var comments = await _context.Comments.Include(c => c.Author).Where(c => c.ArticleId == article.Id).ToListAsync();
+            var comments = await _repository.GetArticleCommentsAsync(article.Id);
 
             return Ok(new CommentsResponse()
             {
@@ -208,7 +207,7 @@ namespace Conduit.Controllers
         [Route("{slug}/comments")]
         public async Task<IActionResult> PostArticleComment(string slug, CommentCreateRequestDto commentCreateDto)
         {
-            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
+            var article = await _repository.GetArticleAsync(slug);
 
             if (article == null)
             {
@@ -226,8 +225,8 @@ namespace Conduit.Controllers
             commentModel.AuthorId = Guid.Parse(userId);
             commentModel.ArticleId = article.Id;
 
-            _context.Comments.Add(commentModel);
-            await _context.SaveChangesAsync();
+            await _repository.AddArticleCommentAsync(commentModel);
+            await _repository.SaveChangesAsync();
 
             var commentReadDto = _mapper.Map<CommentsResponseDto>(commentModel);
 
@@ -242,7 +241,16 @@ namespace Conduit.Controllers
         [Route("{slug}/comments/{id}")]
         public async Task<IActionResult> DeleteComment(string slug, Guid id)
         {
-            var article = await _context.Article.Where(a => a.Slug == slug).FirstOrDefaultAsync();
+            var article = await _repository.GetArticleAsync(slug);
+
+            if (article == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Article not found" }
+                });
+            }
 
             var currentUserId = GetCurrentUserId();
             if (currentUserId != article.AuthorId.ToString())
@@ -254,16 +262,7 @@ namespace Conduit.Controllers
                 });
             }
 
-            if (article == null)
-            {
-                return NotFound(new ErrorResponse()
-                {
-                    Success = false,
-                    Errors = new Errors() { Message = "Article not found" }
-                });
-            }
-
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await _repository.GetArticleCommentAsync(id);
             if (comment == null)
             {
                 return NotFound(new ErrorResponse()
@@ -273,15 +272,15 @@ namespace Conduit.Controllers
                 });
             }
 
-            _context.Comments.Remove(comment);
-            await _context.SaveChangesAsync();
+            _repository.DeleteArticleComment(comment);
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool ArticleExists(Guid id)
         {
-            return _context.Article.Any(e => e.Id == id);
+            return _repository.ArticleExists(id);
         }
 
         public static string GenerateSlug (string Title)

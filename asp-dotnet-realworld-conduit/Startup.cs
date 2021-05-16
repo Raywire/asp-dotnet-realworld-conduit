@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Conduit.Data;
+using Conduit.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,6 +38,7 @@ namespace Conduit
             services.AddDbContext<ConduitContext>(options => options.UseSqlServer(connection));
 
             services.AddCors();
+
             services.AddControllers().ConfigureApiBehaviorOptions(setupAction =>
             {
                 setupAction.InvalidModelStateResponseFactory = context =>
@@ -76,6 +78,8 @@ namespace Conduit
                     };
                 };
             });
+
+            services.AddScoped<IConduitRepository, ConduitRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
