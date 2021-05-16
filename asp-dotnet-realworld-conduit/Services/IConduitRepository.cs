@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Conduit.Models;
+using Conduit.ResourceParameters;
 
 namespace Conduit.Services
 {
     public interface IConduitRepository
     {
-        Task<IEnumerable<Article>> GetArticlesAsync(string author, string search);
+        Task<IEnumerable<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters);
         Task<Article> GetArticleAsync(string slug);
         Task AddArticleAsync(Article article);
         void DeleteArticle(Article article);

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Conduit.Data;
 using Conduit.Models;
+using Conduit.ResourceParameters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Conduit.Services
@@ -57,24 +58,24 @@ namespace Conduit.Services
             return await _context.Comments.Include(c => c.Author).Where(c => c.ArticleId == articleId).ToListAsync();
         }
 
-        public async Task<IEnumerable<Article>> GetArticlesAsync(string author, string search)
+        public async Task<IEnumerable<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters)
         {
-            if (string.IsNullOrWhiteSpace(author) && string.IsNullOrWhiteSpace(search))
+            if (string.IsNullOrWhiteSpace(articlesResourceParameters.Author) && string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
             {
                 return await _context.Article.Include(a => a.Author).ToListAsync();
             }
 
             var collection = _context.Article as IQueryable<Article>;
 
-            if (!string.IsNullOrWhiteSpace(author))
+            if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Author))
             {
-                author = author.Trim();
+                var author = articlesResourceParameters.Author.Trim();
                 collection = collection.Include(a => a.Author).Where(a => a.Author.FirstName == author || a.Author.LastName == author);
             }
 
-            if (!string.IsNullOrWhiteSpace(search))
+            if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
             {
-                search = search.Trim();
+                var search = articlesResourceParameters.Search.Trim();
                 collection = collection.Include(a => a.Author).Where(a => a.Author.FirstName.Contains(search)
                     || a.Author.LastName.Contains(search)
                     || a.Author.UserName.Contains(search)

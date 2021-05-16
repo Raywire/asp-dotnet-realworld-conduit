@@ -36,5 +36,6 @@
     <Folder Include="DTOs\Responses\" />
     <Folder Include="Profiles\" />
     <Folder Include="Services\" />
+    <Folder Include="ResourceParameters\" />
   </ItemGroup>
 </Project>

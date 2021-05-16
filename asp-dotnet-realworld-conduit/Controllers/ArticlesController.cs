@@ -12,6 +12,7 @@ using Conduit.DTOs.Requests;
 using System.Security.Claims;
 using Slugify;
 using Conduit.Services;
+using Conduit.ResourceParameters;
 
 namespace Conduit.Controllers
 {
@@ -32,9 +33,9 @@ namespace Conduit.Controllers
         // GET: api/Articles
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<ArticlesResponse>> GetArticles([FromQuery(Name = "author")] string author, [FromQuery(Name = "search")] string search)
+        public async Task<ActionResult<ArticlesResponse>> GetArticles([FromQuery] ArticlesResourceParameters articlesResourceParameters)
         {
-            var articles = await _repository.GetArticlesAsync(author, search);
+            var articles = await _repository.GetArticlesAsync(articlesResourceParameters);
 
             return Ok(new ArticlesResponse()
             {
