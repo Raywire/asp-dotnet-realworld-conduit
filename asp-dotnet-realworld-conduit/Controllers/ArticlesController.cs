@@ -13,6 +13,8 @@ using System.Security.Claims;
 using Slugify;
 using Conduit.Services;
 using Conduit.ResourceParameters;
+using System.Text.Json;
+using Conduit.Helpers;
 
 namespace Conduit.Controllers
 {
@@ -32,10 +34,28 @@ namespace Conduit.Controllers
 
         // GET: api/Articles
         [AllowAnonymous]
-        [HttpGet]
+        [HttpGet(Name = "GetArticles")]
         public async Task<ActionResult<ArticlesResponse>> GetArticles([FromQuery] ArticlesResourceParameters articlesResourceParameters)
         {
             var articles = await _repository.GetArticlesAsync(articlesResourceParameters);
+
+            var previousPageLink = articles.HasPrevious ?
+                CreateArticlesResourceUri(articlesResourceParameters, ResourceUriType.PreviousPage) : null;
+
+            var nextPageLink = articles.HasNext ?
+                CreateArticlesResourceUri(articlesResourceParameters, ResourceUriType.NextPage) : null;
+
+            var paginationMetadata = new
+            {
+                totalCount = articles.TotalCount,
+                pageSize = articles.PageSize,
+                currentPage = articles.CurrentPage,
+                totalPages = articles.TotalPages,
+                previousPageLink,
+                nextPageLink
+            };
+
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
 
             return Ok(new ArticlesResponse()
             {
@@ -297,6 +317,40 @@ namespace Conduit.Controllers
             var userId = claims.Where(p => p.Type == "Id").FirstOrDefault()?.Value;
 
             return userId;
+        }
+
+        private string CreateArticlesResourceUri(ArticlesResourceParameters articlesResourceParameters, ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link("GetArticles",
+                      new
+                      {
+                          pageNumber = articlesResourceParameters.PageNumber - 1,
+                          pageSize = articlesResourceParameters.PageSize,
+                          mainCategory = articlesResourceParameters.Author,
+                          searchQuery = articlesResourceParameters.Search
+                      });
+                case ResourceUriType.NextPage:
+                    return Url.Link("GetArticles",
+                      new
+                      {
+                          pageNumber = articlesResourceParameters.PageNumber + 1,
+                          pageSize = articlesResourceParameters.PageSize,
+                          mainCategory = articlesResourceParameters.Author,
+                          searchQuery = articlesResourceParameters.Search
+                      });
+                default:
+                    return Url.Link("GetArticles",
+                    new
+                    {
+                        pageNumber = articlesResourceParameters.PageNumber,
+                        pageSize = articlesResourceParameters.PageSize,
+                        mainCategory = articlesResourceParameters.Author,
+                        searchQuery = articlesResourceParameters.Search
+                    });
+            }
         }
     }
 }
