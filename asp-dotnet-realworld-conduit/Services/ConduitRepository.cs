@@ -60,9 +60,9 @@ namespace Conduit.Services
 
         public async Task<IEnumerable<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters)
         {
-            if (string.IsNullOrWhiteSpace(articlesResourceParameters.Author) && string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
+            if(articlesResourceParameters == null)
             {
-                return await _context.Article.Include(a => a.Author).ToListAsync();
+                throw new ArgumentNullException(nameof(articlesResourceParameters));
             }
 
             var collection = _context.Article as IQueryable<Article>;
@@ -82,7 +82,10 @@ namespace Conduit.Services
                     || a.Title.Contains(search));
             }
 
-            return await collection.ToListAsync();
+            return await collection
+                .Skip(articlesResourceParameters.PageSize * (articlesResourceParameters.PageNumber - 1))
+                .Take(articlesResourceParameters.PageSize)
+                .ToListAsync();
 
         }
 
