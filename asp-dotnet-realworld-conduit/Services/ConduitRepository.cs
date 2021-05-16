@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Conduit.Data;
+using Conduit.Helpers;
 using Conduit.Models;
 using Conduit.ResourceParameters;
 using Microsoft.EntityFrameworkCore;
@@ -58,7 +59,7 @@ namespace Conduit.Services
             return await _context.Comments.Include(c => c.Author).Where(c => c.ArticleId == articleId).ToListAsync();
         }
 
-        public async Task<IEnumerable<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters)
+        public async Task<PagedList<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters)
         {
             if(articlesResourceParameters == null)
             {
@@ -82,10 +83,7 @@ namespace Conduit.Services
                     || a.Title.Contains(search));
             }
 
-            return await collection
-                .Skip(articlesResourceParameters.PageSize * (articlesResourceParameters.PageNumber - 1))
-                .Take(articlesResourceParameters.PageSize)
-                .ToListAsync();
+            return await PagedList<Article>.Create(collection, articlesResourceParameters.PageNumber, articlesResourceParameters.PageSize);
 
         }
 

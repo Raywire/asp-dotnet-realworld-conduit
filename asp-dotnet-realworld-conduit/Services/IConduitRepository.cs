@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Conduit.Helpers;
 using Conduit.Models;
 using Conduit.ResourceParameters;
 
@@ -8,7 +9,7 @@ namespace Conduit.Services
 {
     public interface IConduitRepository
     {
-        Task<IEnumerable<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters);
+        Task<PagedList<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters);
         Task<Article> GetArticleAsync(string slug);
         Task AddArticleAsync(Article article);
         void DeleteArticle(Article article);
