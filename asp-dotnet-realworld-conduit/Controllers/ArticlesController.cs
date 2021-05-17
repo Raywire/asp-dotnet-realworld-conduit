@@ -47,6 +47,7 @@ namespace Conduit.Controllers
 
             var paginationMetadata = new
             {
+
                 totalCount = articles.TotalCount,
                 pageSize = articles.PageSize,
                 currentPage = articles.CurrentPage,
@@ -60,6 +61,14 @@ namespace Conduit.Controllers
             return Ok(new ArticlesResponse()
             {
                 Success = true,
+                Metadata = new Metadata() {
+                    TotalCount = articles.TotalCount,
+                    PageSize = articles.PageSize,
+                    CurrentPage = articles.CurrentPage,
+                    TotalPages = articles.TotalPages,
+                    PreviousPageLink = previousPageLink,
+                    NextPageLink = nextPageLink
+                },
                 Articles = _mapper.Map<IEnumerable<ArticlesResponseDto>>(articles)
             });
         }
