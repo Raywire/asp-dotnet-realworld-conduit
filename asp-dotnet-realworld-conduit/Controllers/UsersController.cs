@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Conduit.Data;
@@ -11,6 +10,9 @@ using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using Conduit.DTOs.Responses;
 using Conduit.DTOs.Requests;
+using Conduit.Services;
+using Conduit.ResourceParameters;
+using Conduit.Helpers;
 
 namespace Conduit.Controllers
 {
@@ -19,24 +21,39 @@ namespace Conduit.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly ConduitContext _context;
         private readonly IMapper _mapper;
+        private readonly IConduitRepository _repository;
 
-        public UsersController(ConduitContext context, IMapper mapper)
+        public UsersController(IMapper mapper, IConduitRepository repository)
         {
-            _context = context;
             _mapper = mapper;
+            _repository = repository;
         }
 
         // GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<UsersResponse>> GetUsers()
+        [HttpGet(Name = "GetUsers")]
+        public async Task<ActionResult<UsersResponse>> GetUsers([FromQuery] UsersResourceParameters usersResourceParameters)
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _repository.GetUsersAsync(usersResourceParameters);
+
+            var previousPageLink = users.HasPrevious ?
+                CreateUsersResourceUri(usersResourceParameters, ResourceUriType.PreviousPage, "GetUsers") : null;
+
+            var nextPageLink = users.HasNext ?
+                CreateUsersResourceUri(usersResourceParameters, ResourceUriType.NextPage, "GetUsers") : null;
 
             return Ok(new UsersResponse()
             {
                 Success = true,
+                Metadata = new Metadata()
+                {
+                    TotalCount = users.TotalCount,
+                    PageSize = users.PageSize,
+                    CurrentPage = users.CurrentPage,
+                    TotalPages = users.TotalPages,
+                    PreviousPageLink = previousPageLink,
+                    NextPageLink = nextPageLink
+                },
                 Users = _mapper.Map<IEnumerable<UsersResponseDto>>(users)
             });
         }
@@ -45,7 +62,7 @@ namespace Conduit.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<UserResponse>> GetUser(Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _repository.GetUserAsync(id);
 
             if (user == null)
             {
@@ -68,7 +85,7 @@ namespace Conduit.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(Guid id, UserUpdateRequestDto userUpdateRequestDto)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _repository.GetUserAsync(id);
 
             if (user == null)
             {
@@ -81,11 +98,9 @@ namespace Conduit.Controllers
 
             _mapper.Map(userUpdateRequestDto, user);
 
-            _context.Entry(user).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -106,22 +121,12 @@ namespace Conduit.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<Users>> PostUser(Users user)
-        //{
-        //    _context.Users.Add(user);
-        //    await _context.SaveChangesAsync();
-
-        //    return CreatedAtAction("GetUser", new { id = user.Id }, user);
-        //}
-
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _repository.GetUserAsync(id);
+
             if (user == null)
             {
                 return NotFound(new ErrorResponse()
@@ -131,15 +136,43 @@ namespace Conduit.Controllers
                 });
             }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            _repository.DeleteUser(user);
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool UserExists(Guid id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _repository.UserExists(id);
+        }
+
+        private string CreateUsersResourceUri(UsersResourceParameters usersResourceParameters, ResourceUriType type, string urlLink)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link(urlLink,
+                      new
+                      {
+                          pageNumber = usersResourceParameters.PageNumber - 1,
+                          pageSize = usersResourceParameters.PageSize
+                      });
+                case ResourceUriType.NextPage:
+                    return Url.Link(urlLink,
+                      new
+                      {
+                          pageNumber = usersResourceParameters.PageNumber + 1,
+                          pageSize = usersResourceParameters.PageSize
+                      });
+                default:
+                    return Url.Link(urlLink,
+                    new
+                    {
+                        pageNumber = usersResourceParameters.PageNumber,
+                        pageSize = usersResourceParameters.PageSize
+                    });
+            }
         }
     }
 }

@@ -19,6 +19,12 @@ namespace Conduit.Services
         Task AddArticleCommentAsync(Comment comment);
         void DeleteArticleComment(Comment comment);
         bool ArticleExists(Guid articleId);
+
+        Task<PagedList<User>> GetUsersAsync(UsersResourceParameters usersResourceParameters);
+        Task<User> GetUserAsync(Guid id);
+        void DeleteUser(User user);
+        bool UserExists(Guid userId);
+
         Task<int> SaveChangesAsync();
     }
 }

@@ -201,6 +201,7 @@ namespace Conduit.Controllers
         {
             // Get current user Id
             var userId = GetCurrentUserId();
+            //get author here ********************************************************************************
 
             var articleModel = _mapper.Map<Article>(articleCreateDto);
             articleModel.AuthorId = Guid.Parse(userId);

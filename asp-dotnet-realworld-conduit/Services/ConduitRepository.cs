@@ -105,6 +105,32 @@ namespace Conduit.Services
             return await PagedList<Article>.Create(collection, articlesResourceParameters.PageNumber, articlesResourceParameters.PageSize);
         }
 
+        public async Task<User> GetUserAsync(Guid id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
+
+        public async Task<PagedList<User>> GetUsersAsync(UsersResourceParameters usersResourceParameters)
+        {
+            if (usersResourceParameters == null)
+            {
+                throw new ArgumentNullException(nameof(usersResourceParameters));
+            }
+            var collection = _context.Users as IQueryable<User>;
+
+            return await PagedList<User>.Create(collection, usersResourceParameters.PageNumber, usersResourceParameters.PageSize);
+        }
+
+        public void DeleteUser(User user)
+        {
+            _context.Users.Remove(user);
+        }
+
+        public bool UserExists(Guid userId)
+        {
+            return _context.Users.Any(e => e.Id == userId);
+        }
+
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
