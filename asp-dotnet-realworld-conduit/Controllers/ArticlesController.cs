@@ -380,8 +380,8 @@ namespace Conduit.Controllers
                       {
                           pageNumber = articlesResourceParameters.PageNumber - 1,
                           pageSize = articlesResourceParameters.PageSize,
-                          mainCategory = articlesResourceParameters.Author,
-                          searchQuery = articlesResourceParameters.Search
+                          author = articlesResourceParameters.Author,
+                          search = articlesResourceParameters.Search
                       });
                 case ResourceUriType.NextPage:
                     return Url.Link(urlLink,
@@ -389,8 +389,8 @@ namespace Conduit.Controllers
                       {
                           pageNumber = articlesResourceParameters.PageNumber + 1,
                           pageSize = articlesResourceParameters.PageSize,
-                          mainCategory = articlesResourceParameters.Author,
-                          searchQuery = articlesResourceParameters.Search
+                          author = articlesResourceParameters.Author,
+                          search = articlesResourceParameters.Search
                       });
                 default:
                     return Url.Link(urlLink,
@@ -398,8 +398,8 @@ namespace Conduit.Controllers
                     {
                         pageNumber = articlesResourceParameters.PageNumber,
                         pageSize = articlesResourceParameters.PageSize,
-                        mainCategory = articlesResourceParameters.Author,
-                        searchQuery = articlesResourceParameters.Search
+                        author = articlesResourceParameters.Author,
+                        search = articlesResourceParameters.Search
                     });
             }
         }
