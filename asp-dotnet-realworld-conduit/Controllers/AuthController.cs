@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +9,9 @@ using Conduit.DTOs.Responses;
 using Conduit.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Conduit.Services;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -24,21 +22,21 @@ namespace Conduit.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly ConduitContext _context;
         private readonly IMapper _mapper;
+        private readonly IConduitRepository _repository;
 
-        public AuthController(IConfiguration configuration, ConduitContext context, IMapper mapper)
+        public AuthController(IConfiguration configuration, IMapper mapper, IConduitRepository repository)
         {
             _configuration = configuration;
-            _context = context;
             _mapper = mapper;
+            _repository = repository;
         }
 
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login(UserLoginRequestDto userData)
         {
-            User user = await GetUser(userData.Email);
+            User user = await GetUser(userData.Email, null);
 
             if (user != null)
             {
@@ -77,12 +75,13 @@ namespace Conduit.Controllers
         [Route("signup")]
         public async Task<IActionResult> Register([FromBody] UserRegisterRequestDto userData)
         {
-            User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == userData.Email || user.UserName == userData.UserName);
+            User user = await _repository.GetUserByEmailOrUsernameAsync(userData.Email, userData.UserName);
+
             if (user != null)
             {
                 return BadRequest(new ErrorResponse()
                 {
-                    Errors = new Errors() { Message = "User exists" },
+                    Errors = new Errors() { Message = "User with this email or username exists" },
                     Success = false
                 });
             }
@@ -91,10 +90,10 @@ namespace Conduit.Controllers
 
             userDataModel.Password = BCrypt.Net.BCrypt.HashPassword(userData.Password);
 
-            _context.Users.Add(userDataModel);
-            await _context.SaveChangesAsync();
+            await _repository.AddUserAsync(userDataModel);
+            await _repository.SaveChangesAsync();
 
-            User createdUser = await GetUser(userData.Email);
+            User createdUser = await GetUser(userData.Email, userData.UserName);
             var jwtToken = GenerateJwtToken(createdUser);
 
             return Ok(new UserRegisterResponse()
@@ -105,9 +104,9 @@ namespace Conduit.Controllers
             });
         }
 
-        private async Task<User> GetUser(string email)
+        private async Task<User> GetUser(string email, string username)
         {
-            User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email || user.UserName == email);
+            User user = await _repository.GetUserByEmailOrUsernameAsync(email, username);
 
             if (user == null)
             {

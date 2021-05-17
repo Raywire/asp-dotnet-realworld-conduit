@@ -24,6 +24,8 @@ namespace Conduit.Services
         Task<User> GetUserAsync(Guid id);
         void DeleteUser(User user);
         bool UserExists(Guid userId);
+        Task<User> GetUserByEmailOrUsernameAsync(string email, string username);
+        Task AddUserAsync(User user);
 
         Task<int> SaveChangesAsync();
     }

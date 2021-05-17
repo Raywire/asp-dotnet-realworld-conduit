@@ -131,6 +131,16 @@ namespace Conduit.Services
             return _context.Users.Any(e => e.Id == userId);
         }
 
+        public async Task<User> GetUserByEmailOrUsernameAsync(string email, string username)
+        {
+            return await _context.Users.FirstOrDefaultAsync(user => user.Email == email || user.UserName == username);
+        }
+
+        public async Task AddUserAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
+        }
+
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
