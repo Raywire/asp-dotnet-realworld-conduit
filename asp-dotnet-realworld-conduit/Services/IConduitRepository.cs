@@ -10,6 +10,7 @@ namespace Conduit.Services
     public interface IConduitRepository
     {
         Task<PagedList<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters);
+        Task<PagedList<Article>> GetArticlesFeedAsync(ArticlesResourceParameters articlesResourceParameters, Guid authorId);
         Task<Article> GetArticleAsync(string slug);
         Task AddArticleAsync(Article article);
         void DeleteArticle(Article article);

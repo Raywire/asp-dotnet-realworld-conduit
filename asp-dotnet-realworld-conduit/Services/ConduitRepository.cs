@@ -66,7 +66,7 @@ namespace Conduit.Services
                 throw new ArgumentNullException(nameof(articlesResourceParameters));
             }
 
-            var collection = _context.Article as IQueryable<Article>;
+            var collection = _context.Article.Include(a => a.Author) as IQueryable<Article>;
 
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Author))
             {
@@ -85,6 +85,24 @@ namespace Conduit.Services
 
             return await PagedList<Article>.Create(collection, articlesResourceParameters.PageNumber, articlesResourceParameters.PageSize);
 
+        }
+
+        public async Task<PagedList<Article>> GetArticlesFeedAsync(ArticlesResourceParameters articlesResourceParameters, Guid authorId)
+        {
+            if (articlesResourceParameters == null)
+            {
+                throw new ArgumentNullException(nameof(articlesResourceParameters));
+            }
+
+            var collection = _context.Article.Include(a => a.Author).Where(c => c.AuthorId == authorId);
+
+            if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
+            {
+                var search = articlesResourceParameters.Search.Trim();
+                collection = collection.Include(a => a.Author).Where(a => a.Title.Contains(search));
+            }
+
+            return await PagedList<Article>.Create(collection, articlesResourceParameters.PageNumber, articlesResourceParameters.PageSize);
         }
 
         public async Task<int> SaveChangesAsync()

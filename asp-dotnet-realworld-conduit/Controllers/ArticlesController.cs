@@ -40,10 +40,10 @@ namespace Conduit.Controllers
             var articles = await _repository.GetArticlesAsync(articlesResourceParameters);
 
             var previousPageLink = articles.HasPrevious ?
-                CreateArticlesResourceUri(articlesResourceParameters, ResourceUriType.PreviousPage) : null;
+                CreateArticlesResourceUri(articlesResourceParameters, ResourceUriType.PreviousPage, "GetArticles") : null;
 
             var nextPageLink = articles.HasNext ?
-                CreateArticlesResourceUri(articlesResourceParameters, ResourceUriType.NextPage) : null;
+                CreateArticlesResourceUri(articlesResourceParameters, ResourceUriType.NextPage, "GetArticles") : null;
 
             var paginationMetadata = new
             {
@@ -62,6 +62,48 @@ namespace Conduit.Controllers
             {
                 Success = true,
                 Metadata = new Metadata() {
+                    TotalCount = articles.TotalCount,
+                    PageSize = articles.PageSize,
+                    CurrentPage = articles.CurrentPage,
+                    TotalPages = articles.TotalPages,
+                    PreviousPageLink = previousPageLink,
+                    NextPageLink = nextPageLink
+                },
+                Articles = _mapper.Map<IEnumerable<ArticlesResponseDto>>(articles)
+            });
+        }
+
+        // GET: api/Articles/feed
+        [HttpGet("feed", Name = "GetArticlesFeed")]
+        public async Task<ActionResult<ArticlesResponse>> GetArticlesFeed([FromQuery] ArticlesResourceParameters articlesResourceParameters)
+        {
+            var currentUserId = Guid.Parse(GetCurrentUserId());
+            var articles = await _repository.GetArticlesFeedAsync(articlesResourceParameters, currentUserId);
+
+            var previousPageLink = articles.HasPrevious ?
+                CreateArticlesResourceUri(articlesResourceParameters, ResourceUriType.PreviousPage, "GetArticlesFeed") : null;
+
+            var nextPageLink = articles.HasNext ?
+                CreateArticlesResourceUri(articlesResourceParameters, ResourceUriType.NextPage, "GetArticlesFeed") : null;
+
+            var paginationMetadata = new
+            {
+
+                totalCount = articles.TotalCount,
+                pageSize = articles.PageSize,
+                currentPage = articles.CurrentPage,
+                totalPages = articles.TotalPages,
+                previousPageLink,
+                nextPageLink
+            };
+
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+
+            return Ok(new ArticlesResponse()
+            {
+                Success = true,
+                Metadata = new Metadata()
+                {
                     TotalCount = articles.TotalCount,
                     PageSize = articles.PageSize,
                     CurrentPage = articles.CurrentPage,
@@ -328,12 +370,12 @@ namespace Conduit.Controllers
             return userId;
         }
 
-        private string CreateArticlesResourceUri(ArticlesResourceParameters articlesResourceParameters, ResourceUriType type)
+        private string CreateArticlesResourceUri(ArticlesResourceParameters articlesResourceParameters, ResourceUriType type, string urlLink)
         {
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return Url.Link("GetArticles",
+                    return Url.Link(urlLink,
                       new
                       {
                           pageNumber = articlesResourceParameters.PageNumber - 1,
@@ -342,7 +384,7 @@ namespace Conduit.Controllers
                           searchQuery = articlesResourceParameters.Search
                       });
                 case ResourceUriType.NextPage:
-                    return Url.Link("GetArticles",
+                    return Url.Link(urlLink,
                       new
                       {
                           pageNumber = articlesResourceParameters.PageNumber + 1,
@@ -351,7 +393,7 @@ namespace Conduit.Controllers
                           searchQuery = articlesResourceParameters.Search
                       });
                 default:
-                    return Url.Link("GetArticles",
+                    return Url.Link(urlLink,
                     new
                     {
                         pageNumber = articlesResourceParameters.PageNumber,
