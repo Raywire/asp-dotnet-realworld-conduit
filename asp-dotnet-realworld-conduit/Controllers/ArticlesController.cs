@@ -201,10 +201,11 @@ namespace Conduit.Controllers
         {
             // Get current user Id
             var userId = GetCurrentUserId();
-            //get author here ********************************************************************************
+
+            var user = await _repository.GetUserAsync(Guid.Parse(userId));
 
             var articleModel = _mapper.Map<Article>(articleCreateDto);
-            articleModel.AuthorId = Guid.Parse(userId);
+            articleModel.Author = user;
 
             articleModel.Slug = GenerateSlug(articleModel.Title);
 
