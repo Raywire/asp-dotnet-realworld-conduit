@@ -87,14 +87,14 @@ namespace Conduit.Services
 
         }
 
-        public async Task<PagedList<Article>> GetArticlesFeedAsync(ArticlesResourceParameters articlesResourceParameters, Guid authorId)
+        public async Task<PagedList<Article>> GetArticlesFeedAsync(ArticlesResourceParameters articlesResourceParameters, Guid currentUserId)
         {
             if (articlesResourceParameters == null)
             {
                 throw new ArgumentNullException(nameof(articlesResourceParameters));
             }
 
-            var collection = _context.Article.Include(a => a.Author).Where(c => c.AuthorId == authorId);
+            var collection = _context.Article.Include(a => a.Author).Where(c => c.AuthorId == currentUserId);
 
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
             {

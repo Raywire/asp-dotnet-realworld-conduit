@@ -77,7 +77,7 @@ namespace Conduit.Controllers
         [HttpGet("feed", Name = "GetArticlesFeed")]
         public async Task<ActionResult<ArticlesResponse>> GetArticlesFeed([FromQuery] ArticlesResourceParameters articlesResourceParameters)
         {
-            var currentUserId = Guid.Parse(GetCurrentUserId());
+            var currentUserId = GetCurrentUserId();
             var articles = await _repository.GetArticlesFeedAsync(articlesResourceParameters, currentUserId);
 
             var previousPageLink = articles.HasPrevious ?
@@ -155,7 +155,7 @@ namespace Conduit.Controllers
             }
 
             var currentUserId = GetCurrentUserId();
-            if (currentUserId != article.AuthorId.ToString())
+            if (currentUserId != article.AuthorId)
             {
                 return StatusCode(403, new ErrorResponse()
                 {
@@ -202,7 +202,7 @@ namespace Conduit.Controllers
             // Get current user Id
             var userId = GetCurrentUserId();
 
-            var user = await _repository.GetUserAsync(Guid.Parse(userId));
+            var user = await _repository.GetUserAsync(userId);
 
             var articleModel = _mapper.Map<Article>(articleCreateDto);
             articleModel.Author = user;
@@ -237,7 +237,7 @@ namespace Conduit.Controllers
             }
 
             var currentUserId = GetCurrentUserId();
-            if (currentUserId != article.AuthorId.ToString())
+            if (currentUserId != article.AuthorId)
             {
                 return StatusCode(403, new ErrorResponse()
                 {
@@ -296,7 +296,7 @@ namespace Conduit.Controllers
             var userId = GetCurrentUserId();
 
             var commentModel = _mapper.Map<Comment>(commentCreateDto);
-            commentModel.AuthorId = Guid.Parse(userId);
+            commentModel.AuthorId = userId;
             commentModel.ArticleId = article.Id;
 
             await _repository.AddArticleCommentAsync(commentModel);
@@ -327,7 +327,7 @@ namespace Conduit.Controllers
             }
 
             var currentUserId = GetCurrentUserId();
-            if (currentUserId != article.AuthorId.ToString())
+            if (currentUserId != article.AuthorId)
             {
                 return StatusCode(403, new ErrorResponse()
                 {
@@ -372,11 +372,11 @@ namespace Conduit.Controllers
             var currentUserId = GetCurrentUserId();
 
             var favoriteModel = new Favorite() {
-                AuthorId = Guid.Parse(currentUserId),
+                AuthorId = currentUserId,
                 ArticleId = article.Id
             };
 
-            var favorite = await _repository.GetArticleFavoriteAsync(article.Id, Guid.Parse(currentUserId));
+            var favorite = await _repository.GetArticleFavoriteAsync(article.Id, currentUserId);
 
             if (favorite == null)
             {
@@ -412,7 +412,7 @@ namespace Conduit.Controllers
 
             var currentUserId = GetCurrentUserId();
 
-            var favorite = await _repository.GetArticleFavoriteAsync(article.Id, Guid.Parse(currentUserId));
+            var favorite = await _repository.GetArticleFavoriteAsync(article.Id, currentUserId);
 
             if (favorite != null)
             {
@@ -442,12 +442,12 @@ namespace Conduit.Controllers
             return slug;
         }
 
-        private string GetCurrentUserId (){
+        private Guid GetCurrentUserId (){
             var identity = User.Identity as ClaimsIdentity;
             IEnumerable<Claim> claims = identity.Claims;
             var userId = claims.Where(p => p.Type == "Id").FirstOrDefault()?.Value;
 
-            return userId;
+            return Guid.Parse(userId);
         }
 
         private string CreateArticlesResourceUri(ArticlesResourceParameters articlesResourceParameters, ResourceUriType type, string urlLink)
