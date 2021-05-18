@@ -80,7 +80,7 @@ namespace Conduit.Services
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Author))
             {
                 var author = articlesResourceParameters.Author.Trim();
-                collection = collection.Include(a => a.Author).Where(a => a.Author.FirstName == author || a.Author.LastName == author);
+                collection = collection.Include(a => a.Author).Where(a => a.Author.UserName == author || a.Author.Email == author);
             }
 
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
