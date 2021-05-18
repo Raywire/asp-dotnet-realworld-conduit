@@ -18,6 +18,9 @@ namespace Conduit.Services
         Task<Comment> GetArticleCommentAsync(Guid commentId);
         Task AddArticleCommentAsync(Comment comment);
         void DeleteArticleComment(Comment comment);
+        Task AddArticleFavoriteAsync(Favorite favorite);
+        void DeleteArticleFavorite(Favorite favorite);
+        Task<Favorite> GetArticleFavoriteAsync(Guid articleId, Guid userId);
         bool ArticleExists(Guid articleId);
 
         Task<PagedList<User>> GetUsersAsync(UsersResourceParameters usersResourceParameters);

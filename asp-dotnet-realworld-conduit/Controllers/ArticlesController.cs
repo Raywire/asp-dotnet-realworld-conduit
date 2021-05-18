@@ -352,6 +352,84 @@ namespace Conduit.Controllers
             return NoContent();
         }
 
+
+        [HttpPost]
+        [Route("{slug}/favorite")]
+        public async Task<IActionResult> PostArticleFavorite(string slug)
+        {
+            var article = await _repository.GetArticleAsync(slug);
+
+            if (article == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Article not found" }
+                });
+            }
+
+            // Get current user Id
+            var currentUserId = GetCurrentUserId();
+
+            var favoriteModel = new Favorite() {
+                AuthorId = Guid.Parse(currentUserId),
+                ArticleId = article.Id
+            };
+
+            var favorite = await _repository.GetArticleFavoriteAsync(article.Id, Guid.Parse(currentUserId));
+
+            if (favorite == null)
+            {
+                await _repository.AddArticleFavoriteAsync(favoriteModel);
+                await _repository.SaveChangesAsync();
+            }
+
+            var articleReadDto = _mapper.Map<ArticlesResponseDto>(article);
+
+            int statusCode = favorite == null ? 201 : 200;
+
+            return StatusCode(statusCode, new ArticleResponse()
+            {
+                Success = true,
+                Article = articleReadDto
+            });
+        }
+
+        [HttpDelete]
+        [Route("{slug}/favorite")]
+        public async Task<IActionResult> DeleteArticleFavorite(string slug, Guid id)
+        {
+            var article = await _repository.GetArticleAsync(slug);
+
+            if (article == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Article not found" }
+                });
+            }
+
+            var currentUserId = GetCurrentUserId();
+
+            var favorite = await _repository.GetArticleFavoriteAsync(article.Id, Guid.Parse(currentUserId));
+
+            if (favorite != null)
+            {
+                _repository.DeleteArticleFavorite(favorite);
+                await _repository.SaveChangesAsync();
+            }
+
+            var articleReadDto = _mapper.Map<ArticlesResponseDto>(article);
+
+            return StatusCode(200, new ArticleResponse()
+            {
+                Success = true,
+                Article = articleReadDto
+            });
+        }
+
+
         private bool ArticleExists(Guid id)
         {
             return _repository.ArticleExists(id);

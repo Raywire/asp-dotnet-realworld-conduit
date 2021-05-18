@@ -105,6 +105,21 @@ namespace Conduit.Services
             return await PagedList<Article>.Create(collection, articlesResourceParameters.PageNumber, articlesResourceParameters.PageSize);
         }
 
+        public async Task AddArticleFavoriteAsync(Favorite favorite)
+        {
+            await _context.Favorites.AddAsync(favorite);
+        }
+
+        public void DeleteArticleFavorite(Favorite favorite)
+        {
+            _context.Favorites.Remove(favorite);
+        }
+
+        public async Task<Favorite> GetArticleFavoriteAsync(Guid articleId, Guid userId)
+        {
+            return await _context.Favorites.Where(c => c.ArticleId == articleId && c.AuthorId == userId).FirstOrDefaultAsync();
+        }
+
         public async Task<User> GetUserAsync(Guid id)
         {
             return await _context.Users.FindAsync(id);
