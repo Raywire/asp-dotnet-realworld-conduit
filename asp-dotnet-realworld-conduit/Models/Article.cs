@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Conduit.Models
 {
@@ -28,13 +29,17 @@ namespace Conduit.Models
 
         public DateTime? UpdatedAt { get; set; }
 
-        public bool Favorited { get; set; }
+        [NotMapped]
+        public bool Favorited => Favorites?.Any() ?? false;
 
-        public int FavoritesCount { get; set; }
+        [NotMapped]
+        public int FavoritesCount => Favorites?.Count ?? 0;
 
         [ForeignKey("AuthorId")]
         public User Author { get; set; }
 
         public Guid AuthorId { get; set; }
+
+        public List<Favorite> Favorites { get; set; }
     }
 }

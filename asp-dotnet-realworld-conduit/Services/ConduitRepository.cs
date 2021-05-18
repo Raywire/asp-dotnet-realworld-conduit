@@ -44,8 +44,12 @@ namespace Conduit.Services
             _context.Comments.Remove(comment);
         }
 
-        public async Task<Article> GetArticleAsync(string slug)
+        public async Task<Article> GetArticleAsync(string slug, string currentUserId)
         {
+            if (currentUserId != null)
+            {
+                return await _context.Article.Include(a => a.Author).Include(a => a.Favorites.Where(f => f.AuthorId == Guid.Parse(currentUserId))).Where(a => a.Slug == slug).FirstOrDefaultAsync();
+            }
             return await _context.Article.Include(a => a.Author).Where(a => a.Slug == slug).FirstOrDefaultAsync();
         }
 
@@ -59,7 +63,7 @@ namespace Conduit.Services
             return await _context.Comments.Include(c => c.Author).Where(c => c.ArticleId == articleId).ToListAsync();
         }
 
-        public async Task<PagedList<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters)
+        public async Task<PagedList<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters, string currentUserId)
         {
             if(articlesResourceParameters == null)
             {
@@ -67,6 +71,11 @@ namespace Conduit.Services
             }
 
             var collection = _context.Article.Include(a => a.Author) as IQueryable<Article>;
+
+            if (currentUserId != null)
+            {
+                collection = collection.Include(a => a.Favorites.Where(f => f.AuthorId == Guid.Parse(currentUserId)));
+            }
 
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Author))
             {
@@ -94,7 +103,7 @@ namespace Conduit.Services
                 throw new ArgumentNullException(nameof(articlesResourceParameters));
             }
 
-            var collection = _context.Article.Include(a => a.Author).Where(c => c.AuthorId == currentUserId);
+            var collection = _context.Article.Include(a => a.Author).Include(a => a.Favorites.Where(f => f.AuthorId == currentUserId)).Where(c => c.AuthorId == currentUserId);
 
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
             {

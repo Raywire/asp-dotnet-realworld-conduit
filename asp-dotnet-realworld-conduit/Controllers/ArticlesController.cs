@@ -37,7 +37,8 @@ namespace Conduit.Controllers
         [HttpGet(Name = "GetArticles")]
         public async Task<ActionResult<ArticlesResponse>> GetArticles([FromQuery] ArticlesResourceParameters articlesResourceParameters)
         {
-            var articles = await _repository.GetArticlesAsync(articlesResourceParameters);
+            var currentUserId = IsAuthenticated() ? GetCurrentUserId().ToString() : null;
+            var articles = await _repository.GetArticlesAsync(articlesResourceParameters, currentUserId);
 
             var previousPageLink = articles.HasPrevious ?
                 CreateArticlesResourceUri(articlesResourceParameters, ResourceUriType.PreviousPage, "GetArticles") : null;
@@ -120,7 +121,8 @@ namespace Conduit.Controllers
         [HttpGet("{slug}")]
         public async Task<ActionResult<ArticleResponse>> GetArticle(string slug)
         {
-            var article = await _repository.GetArticleAsync(slug);
+            var currentUserId = IsAuthenticated() ? GetCurrentUserId().ToString() : null;
+            var article = await _repository.GetArticleAsync(slug, currentUserId);
 
             if (article == null)
             {
@@ -442,12 +444,18 @@ namespace Conduit.Controllers
             return slug;
         }
 
-        private Guid GetCurrentUserId (){
+        private Guid GetCurrentUserId ()
+        {
             var identity = User.Identity as ClaimsIdentity;
             IEnumerable<Claim> claims = identity.Claims;
             var userId = claims.Where(p => p.Type == "Id").FirstOrDefault()?.Value;
 
             return Guid.Parse(userId);
+        }
+
+        private bool IsAuthenticated ()
+        {
+            return User.Identity.IsAuthenticated;
         }
 
         private string CreateArticlesResourceUri(ArticlesResourceParameters articlesResourceParameters, ResourceUriType type, string urlLink)

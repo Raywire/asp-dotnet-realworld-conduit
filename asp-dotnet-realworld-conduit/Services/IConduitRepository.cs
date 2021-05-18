@@ -9,9 +9,9 @@ namespace Conduit.Services
 {
     public interface IConduitRepository
     {
-        Task<PagedList<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters);
+        Task<PagedList<Article>> GetArticlesAsync(ArticlesResourceParameters articlesResourceParameters, string currentUserId = null);
         Task<PagedList<Article>> GetArticlesFeedAsync(ArticlesResourceParameters articlesResourceParameters, Guid currentUserId);
-        Task<Article> GetArticleAsync(string slug);
+        Task<Article> GetArticleAsync(string slug, string currentUserId = null);
         Task AddArticleAsync(Article article);
         void DeleteArticle(Article article);
         Task<IEnumerable<Comment>> GetArticleCommentsAsync(Guid articleId);
