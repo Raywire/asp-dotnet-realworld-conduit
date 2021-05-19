@@ -1,5 +1,4 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using Conduit.DTOs.Requests;
 using Conduit.DTOs.Responses;
 using Conduit.Models;

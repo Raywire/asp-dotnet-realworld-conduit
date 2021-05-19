@@ -1,10 +1,9 @@
-﻿using System;
-using Conduit.DTOs.Requests;
+﻿using Conduit.DTOs.Requests;
 using Conduit.DTOs.Responses;
 using Conduit.Models;
 using AutoMapper;
 
-namespace asp_dotnet_realworld_conduit.Profiles
+namespace Conduit.Profiles
 {
     public class AuthProfile : Profile
     {
