@@ -30,6 +30,10 @@ namespace Conduit.Services
         Task<User> GetUserByEmailOrUsernameAsync(string email, string username);
         Task AddUserAsync(User user);
 
+        Task AddProfileFollowAsync(Follow follow);
+        void DeleteProfileFollow(Follow follow);
+        Task<Follow> GetProfileFollowAsync(Guid followingId, Guid authorId);
+
         Task<int> SaveChangesAsync();
     }
 }

@@ -165,6 +165,21 @@ namespace Conduit.Services
             await _context.Users.AddAsync(user);
         }
 
+        public async Task AddProfileFollowAsync(Follow follow)
+        {
+            await _context.Follows.AddAsync(follow);
+        }
+
+        public void DeleteProfileFollow(Follow follow)
+        {
+            _context.Follows.Remove(follow);
+        }
+
+        public async Task<Follow> GetProfileFollowAsync(Guid followingId, Guid authorId)
+        {
+            return await _context.Follows.Where(c => c.FollowingId == followingId && c.AuthorId == authorId).FirstOrDefaultAsync();
+        }
+
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();

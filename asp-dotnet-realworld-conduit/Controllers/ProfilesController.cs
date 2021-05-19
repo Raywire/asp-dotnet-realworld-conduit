@@ -10,6 +10,8 @@ using Conduit.Models;
 using Conduit.Services;
 using Conduit.DTOs.Responses;
 using AutoMapper;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Conduit.Controllers
 {
@@ -31,6 +33,7 @@ namespace Conduit.Controllers
         public async Task<ActionResult<ProfileResponse>> GetProfile(string username)
         {
             var user = await _repository.GetUserByEmailOrUsernameAsync(username, username);
+            var currentUserId = IsAuthenticated() ? GetCurrentUserId().ToString() : null;
 
             if (user == null)
             {
@@ -41,43 +44,120 @@ namespace Conduit.Controllers
                 });
             }
 
+            var profile = _mapper.Map<ProfileResponseDto>(user);
+
+            if (currentUserId != null)
+            {
+                var following = await _repository.GetProfileFollowAsync(user.Id, Guid.Parse(currentUserId));
+                if (following != null)
+                {
+                    profile.Following = true;
+                }
+            }
+
             return new ProfileResponse()
             {
                 Success = true,
-                Profile = _mapper.Map<ProfileResponseDto>(user)
+                Profile = profile
             };
         }
 
-        // POST: api/Profiles
+        // POST: api/Profiles/:username/follow
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        [Authorize]
+        [HttpPost("{username}/follow")]
+        public async Task<ActionResult<User>> FollowUser(string username)
         {
-            //_context.Users.Add(user);
-            //await _context.SaveChangesAsync();
+            var followingUser = await _repository.GetUserByEmailOrUsernameAsync(username, username);
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            if (followingUser == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "User not found" }
+                });
+            }
+
+            // Get current user Id
+            var currentUserId = GetCurrentUserId();
+
+            var followModel = new Follow()
+            {
+                Id = Guid.NewGuid(),
+                AuthorId = currentUserId,
+                Following = followingUser
+            };
+
+            var follow = await _repository.GetProfileFollowAsync(followingUser.Id, currentUserId);
+
+            if (follow == null)
+            {
+                await _repository.AddProfileFollowAsync(followModel);
+                await _repository.SaveChangesAsync();
+            }
+
+            var profileReadDto = _mapper.Map<ProfileResponseDto>(followingUser);
+
+            profileReadDto.Following = true;
+
+            int statusCode = follow == null ? 201 : 200;
+
+            return StatusCode(statusCode, new ProfileResponse()
+            {
+                Success = true,
+                Profile = profileReadDto
+            });
         }
 
-        // DELETE: api/Profiles/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        // DELETE: api/Profiles/:username/follow
+        [Authorize]
+        [HttpDelete("{username}/follow")]
+        public async Task<IActionResult> DeleteUser(string username)
         {
-            //var user = await _context.Users.FindAsync(id);
-            //if (user == null)
-            //{
-            //    return NotFound();
-            //}
+            var followingUser = await _repository.GetUserByEmailOrUsernameAsync(username, username);
 
-            //_context.Users.Remove(user);
-            //await _context.SaveChangesAsync();
+            if (followingUser == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "User not found" }
+                });
+            }
 
-            return NoContent();
+            // Get current user Id
+            var currentUserId = GetCurrentUserId();
+
+            var follow = await _repository.GetProfileFollowAsync(followingUser.Id, currentUserId);
+
+            if (follow != null)
+            {
+                _repository.DeleteProfileFollow(follow);
+                await _repository.SaveChangesAsync();
+            }
+
+            var profileReadDto = _mapper.Map<ProfileResponseDto>(followingUser);
+
+            return StatusCode(200, new ProfileResponse()
+            {
+                Success = true,
+                Profile = profileReadDto
+            });
         }
 
-        private bool UserExists(Guid id)
+        private Guid GetCurrentUserId()
         {
-            return _repository.UserExists(id);
+            var identity = User.Identity as ClaimsIdentity;
+            IEnumerable<Claim> claims = identity.Claims;
+            var userId = claims.Where(p => p.Type == "Id").FirstOrDefault()?.Value;
+
+            return Guid.Parse(userId);
+        }
+
+        private bool IsAuthenticated()
+        {
+            return User.Identity.IsAuthenticated;
         }
     }
 }

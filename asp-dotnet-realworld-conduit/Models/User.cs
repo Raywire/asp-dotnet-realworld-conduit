@@ -39,5 +39,11 @@ namespace Conduit.Models
         public DateTime CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
+
+        public List<Favorite> Favorites { get; set; }
+
+        public List<Follow> Following { get; set; }
+
+        public List<Follow> Followers { get; set; }
     }
 }
