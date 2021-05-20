@@ -33,6 +33,7 @@ namespace Conduit.Services
         Task AddProfileFollowAsync(Follow follow);
         void DeleteProfileFollow(Follow follow);
         Task<Follow> GetProfileFollowAsync(Guid followingId, Guid authorId);
+        Task<User> GetProfileAsync(Guid userId);
 
         Task<int> SaveChangesAsync();
     }

@@ -2,10 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Conduit.Data;
 using Conduit.Models;
 using Conduit.Services;
 using Conduit.DTOs.Responses;
@@ -54,6 +51,33 @@ namespace Conduit.Controllers
                     profile.Following = true;
                 }
             }
+
+            return new ProfileResponse()
+            {
+                Success = true,
+                Profile = profile
+            };
+        }
+
+        // GET: api/Profiles/me
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<ActionResult<ProfileResponse>> GetCurrentUserProfile()
+        {
+            var currentUserId = GetCurrentUserId();
+
+            var user = await _repository.GetProfileAsync(currentUserId);
+
+            if (user == null)
+            {
+                return NotFound(new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "Profile not found" }
+                });
+            }
+
+            var profile = _mapper.Map<ProfileResponseDto>(user);
 
             return new ProfileResponse()
             {

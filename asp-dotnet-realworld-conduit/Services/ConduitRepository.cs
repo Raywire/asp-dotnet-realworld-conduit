@@ -134,6 +134,12 @@ namespace Conduit.Services
             return await _context.Users.FindAsync(id);
         }
 
+        public async Task<User> GetProfileAsync(Guid userId)
+        {
+            var user = await _context.Users.Where(u => u.Id == userId).FirstOrDefaultAsync();
+            return user;
+        }
+
         public async Task<PagedList<User>> GetUsersAsync(UsersResourceParameters usersResourceParameters)
         {
             if (usersResourceParameters == null)
