@@ -12,7 +12,7 @@ namespace Conduit.DTOs.Responses
         public string Bio { get; set; }
         public string Photo { get; set; }
         public bool IsFollowing { get; set; }
-        public List<FollowingResponseDto> Following { get; set; }
-        public List<FollowerResponseDto> Followers { get; set; }
+        public List<FollowResponseDto> Following { get; set; }
+        public List<FollowResponseDto> Followers { get; set; }
     }
 }

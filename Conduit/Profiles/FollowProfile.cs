@@ -2,14 +2,14 @@ using AutoMapper;
 using Conduit.DTOs.Responses;
 using Conduit.Models;
 
-namespace asp_dotnet_realworld_conduit.Profiles
+namespace Conduit.Profiles
 {
     public class FollowProfile : Profile
     {
         public FollowProfile()
         {
-            CreateMap<Follow, FollowingResponseDto>();
-            CreateMap<Follow, FollowerResponseDto>();
+            CreateMap<Follow, FollowResponseDto>();
+            CreateMap<User, FollowResponseDto>();
         }
     }
 }
