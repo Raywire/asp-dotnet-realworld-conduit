@@ -9,6 +9,7 @@ using Conduit.DTOs.Responses;
 using AutoMapper;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Conduit.Constants;
 
 namespace Conduit.Controllers
 {
@@ -45,10 +46,10 @@ namespace Conduit.Controllers
 
             if (currentUserId != null)
             {
-                var following = await _repository.GetProfileFollowAsync(user.Id, Guid.Parse(currentUserId));
-                if (following != null)
+                var isFollowing = await _repository.GetProfileFollowAsync(user.Id, Guid.Parse(currentUserId));
+                if (isFollowing != null)
                 {
-                    profile.Following = true;
+                    profile.IsFollowing = true;
                 }
             }
 
@@ -105,12 +106,21 @@ namespace Conduit.Controllers
 
             // Get current user Id
             var currentUserId = GetCurrentUserId();
+            var currentUser = await _repository.GetUserAsync(currentUserId);
+
+            if (currentUser.UserName == username)
+            {
+                return StatusCode(StatusCodes.Forbidden, new ErrorResponse()
+                {
+                    Success = false,
+                    Errors = new Errors() { Message = "You cannot follow yourself" }
+                });
+            }
 
             var followModel = new Follow()
             {
-                Id = Guid.NewGuid(),
-                AuthorId = currentUserId,
-                Following = followingUser
+                FollowerId = currentUserId,
+                FollowingId = followingUser.Id
             };
 
             var follow = await _repository.GetProfileFollowAsync(followingUser.Id, currentUserId);
@@ -123,9 +133,9 @@ namespace Conduit.Controllers
 
             var profileReadDto = _mapper.Map<ProfileResponseDto>(followingUser);
 
-            profileReadDto.Following = true;
+            profileReadDto.IsFollowing = true;
 
-            int statusCode = follow == null ? 201 : 200;
+            int statusCode = follow == null ? StatusCodes.Created : StatusCodes.OK;
 
             return StatusCode(statusCode, new ProfileResponse()
             {
@@ -163,7 +173,7 @@ namespace Conduit.Controllers
 
             var profileReadDto = _mapper.Map<ProfileResponseDto>(followingUser);
 
-            return StatusCode(200, new ProfileResponse()
+            return StatusCode(StatusCodes.OK, new ProfileResponse()
             {
                 Success = true,
                 Profile = profileReadDto

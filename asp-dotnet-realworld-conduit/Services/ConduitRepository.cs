@@ -136,7 +136,7 @@ namespace Conduit.Services
 
         public async Task<User> GetProfileAsync(Guid userId)
         {
-            var user = await _context.Users.Where(u => u.Id == userId).FirstOrDefaultAsync();
+            var user = await _context.Users.Include(f => f.Followers).Include(f => f.Following).AsSingleQuery().Where(u => u.Id == userId).FirstOrDefaultAsync();
             return user;
         }
 
@@ -163,7 +163,7 @@ namespace Conduit.Services
 
         public async Task<User> GetUserByEmailOrUsernameAsync(string email, string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(user => user.Email == email || user.UserName == username);
+            return await _context.Users.Include(f => f.Followers).Include(f => f.Following).AsSingleQuery().FirstOrDefaultAsync(user => user.Email == email || user.UserName == username);
         }
 
         public async Task AddUserAsync(User user)
@@ -183,7 +183,7 @@ namespace Conduit.Services
 
         public async Task<Follow> GetProfileFollowAsync(Guid followingId, Guid authorId)
         {
-            return await _context.Follows.Where(c => c.FollowingId == followingId && c.AuthorId == authorId).FirstOrDefaultAsync();
+            return await _context.Follows.Where(c => c.FollowingId == followingId && c.FollowerId == authorId).FirstOrDefaultAsync();
         }
 
         public async Task<int> SaveChangesAsync()

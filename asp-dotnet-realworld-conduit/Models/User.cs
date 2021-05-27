@@ -42,8 +42,8 @@ namespace Conduit.Models
 
         public List<Favorite> Favorites { get; set; }
 
-        public List<Follow> Following { get; set; }
+        public ICollection<Follow> Following { get; set; }
 
-        public List<Follow> Followers { get; set; }
+        public ICollection<Follow> Followers { get; set; }
     }
 }

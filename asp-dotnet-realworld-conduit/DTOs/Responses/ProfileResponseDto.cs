@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using Conduit.Models;
+
 namespace Conduit.DTOs.Responses
 {
     public class ProfileResponseDto
@@ -8,6 +11,8 @@ namespace Conduit.DTOs.Responses
         public string UserName { get; set; }
         public string Bio { get; set; }
         public string Photo { get; set; }
-        public bool Following { get; set; }
+        public bool IsFollowing { get; set; }
+        public List<FollowingResponseDto> Following { get; set; }
+        public List<FollowerResponseDto> Followers { get; set; }
     }
 }
