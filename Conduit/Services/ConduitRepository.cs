@@ -91,16 +91,26 @@ namespace Conduit.Services
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Author))
             {
                 var author = articlesResourceParameters.Author.Trim();
-                collection = collection.Include(a => a.Author).Where(a => a.Author.UserName == author || a.Author.Email == author);
+                collection = collection.Where(a => a.Author.UserName == author || a.Author.Email == author);
             }
 
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
             {
                 var search = articlesResourceParameters.Search.Trim();
-                collection = collection.Include(a => a.Author).Where(a => a.Author.FirstName.Contains(search)
+                collection = collection.Where(a => a.Author.FirstName.Contains(search)
                     || a.Author.LastName.Contains(search)
                     || a.Author.UserName.Contains(search)
                     || a.Title.Contains(search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Tag))
+            {
+                var tag = articlesResourceParameters.Tag.Trim();
+                var articleTag = await _context.ArticleTags.FirstOrDefaultAsync(x => x.TagId == tag);
+                if (articleTag != null)
+                {
+                    collection = collection.Where(x => x.ArticleTags.Select(c => c.TagId).Contains(articleTag.TagId));
+                }
             }
 
             return await PagedList<Article>.Create(collection, articlesResourceParameters.PageNumber, articlesResourceParameters.PageSize);
@@ -125,7 +135,7 @@ namespace Conduit.Services
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
             {
                 var search = articlesResourceParameters.Search.Trim();
-                collection = collection.Include(a => a.Author).Where(a => a.Title.Contains(search));
+                collection = collection.Where(a => a.Title.Contains(search));
             }
 
             return await PagedList<Article>.Create(collection, articlesResourceParameters.PageNumber, articlesResourceParameters.PageSize);

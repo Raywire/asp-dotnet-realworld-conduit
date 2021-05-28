@@ -520,22 +520,24 @@ namespace Conduit.Controllers
             {
                 case ResourceUriType.PreviousPage:
                     return Url.Link(urlLink,
-                      new
-                      {
-                          pageNumber = articlesResourceParameters.PageNumber - 1,
-                          pageSize = articlesResourceParameters.PageSize,
-                          author = articlesResourceParameters.Author,
-                          search = articlesResourceParameters.Search
-                      });
+                        new
+                        {
+                            pageNumber = articlesResourceParameters.PageNumber - 1,
+                            pageSize = articlesResourceParameters.PageSize,
+                            author = articlesResourceParameters.Author,
+                            search = articlesResourceParameters.Search,
+                            tag = articlesResourceParameters.Tag
+                        });
                 case ResourceUriType.NextPage:
                     return Url.Link(urlLink,
-                      new
-                      {
-                          pageNumber = articlesResourceParameters.PageNumber + 1,
-                          pageSize = articlesResourceParameters.PageSize,
-                          author = articlesResourceParameters.Author,
-                          search = articlesResourceParameters.Search
-                      });
+                    new
+                    {
+                        pageNumber = articlesResourceParameters.PageNumber + 1,
+                        pageSize = articlesResourceParameters.PageSize,
+                        author = articlesResourceParameters.Author,
+                        search = articlesResourceParameters.Search,
+                        tag = articlesResourceParameters.Tag
+                    });
                 default:
                     return Url.Link(urlLink,
                     new
@@ -543,7 +545,8 @@ namespace Conduit.Controllers
                         pageNumber = articlesResourceParameters.PageNumber,
                         pageSize = articlesResourceParameters.PageSize,
                         author = articlesResourceParameters.Author,
-                        search = articlesResourceParameters.Search
+                        search = articlesResourceParameters.Search,
+                        tag = articlesResourceParameters.Tag
                     });
             }
         }

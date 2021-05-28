@@ -4,5 +4,6 @@
     {
         public string Author { get; set; }
         public string Search { get; set; }
+        public string Tag { get; set; }
     }
 }
