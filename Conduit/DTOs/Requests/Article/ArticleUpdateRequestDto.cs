@@ -4,6 +4,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Conduit.DTOs.Requests
 {
+    public class ArticleUpdateRequestWrapper
+    {
+        [Required]
+        public ArticleUpdateRequestDto Article { get; set; }
+    }
     public class ArticleUpdateRequestDto
     {
         [Required]

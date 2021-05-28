@@ -143,7 +143,7 @@ namespace Conduit.Controllers
         // PUT: api/Articles/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{slug}")]
-        public async Task<IActionResult> PutArticle(string slug, ArticleUpdateRequestDto articleUpdateRequestDto)
+        public async Task<IActionResult> PutArticle(string slug, ArticleUpdateRequestWrapper articleUpdateRequestDto)
         {
             var article = await _repository.GetArticleAsync(slug);
 
@@ -166,9 +166,9 @@ namespace Conduit.Controllers
                 });
             }
 
-            if (articleUpdateRequestDto.Title != article.Title)
+            if (articleUpdateRequestDto.Article.Title != article.Title)
             {
-                article.Slug = GenerateSlug(articleUpdateRequestDto.Title);
+                article.Slug = GenerateSlug(articleUpdateRequestDto.Article.Title);
             }
 
             // Get current tags for article
@@ -179,7 +179,7 @@ namespace Conduit.Controllers
 
             // Check if incoming tags from update exist, if not create them
             // Check if incoming tags exist in article if not add them to list
-            foreach (var tag in articleUpdateRequestDto.TagList ?? Enumerable.Empty<string>())
+            foreach (var tag in articleUpdateRequestDto.Article.TagList ?? Enumerable.Empty<string>())
             {
                 var t = await _repository.GetTagAsync(tag);
                 if (t == null)
@@ -198,7 +198,7 @@ namespace Conduit.Controllers
             // Check if incoming tags differ from current tags then add the removed ones to list
             foreach (var tag in articleTagList)
             {
-                var articleTag = articleUpdateRequestDto.TagList.FirstOrDefault(t => t == tag);
+                var articleTag = articleUpdateRequestDto.Article.TagList.FirstOrDefault(t => t == tag);
                 if (articleTag == null)
                 {
                     var tagToDelete = article.ArticleTags.Where(at => at.TagId == tag).FirstOrDefault();
@@ -211,7 +211,7 @@ namespace Conduit.Controllers
             // delete the article tags that do not exist anymore
             _repository.DeleteArticleTags(articleTagsToDelete);
 
-            _mapper.Map(articleUpdateRequestDto, article);
+            _mapper.Map(articleUpdateRequestDto.Article, article);
 
             try
             {
@@ -239,7 +239,7 @@ namespace Conduit.Controllers
         // POST: api/Articles
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ArticlesResponse>> PostArticle(ArticleCreateRequestDto articleCreateDto)
+        public async Task<ActionResult<ArticlesResponse>> PostArticle(ArticleCreateRequestWrapper articleCreateDto)
         {
             // Get current user Id
             var userId = GetCurrentUserId();
@@ -247,7 +247,7 @@ namespace Conduit.Controllers
             var user = await _repository.GetUserAsync(userId);
 
             var tags = new List<Tag>();
-            foreach (var tag in articleCreateDto.TagList ?? Enumerable.Empty<string>())
+            foreach (var tag in articleCreateDto.Article.TagList ?? Enumerable.Empty<string>())
             {
                 var t = await _repository.GetTagAsync(tag);
                 if (t == null)
@@ -260,7 +260,7 @@ namespace Conduit.Controllers
                 tags.Add(t);
             }
 
-            var articleModel = _mapper.Map<Article>(articleCreateDto);
+            var articleModel = _mapper.Map<Article>(articleCreateDto.Article);
             articleModel.Author = user;
 
             articleModel.Slug = GenerateSlug(articleModel.Title);
@@ -337,7 +337,7 @@ namespace Conduit.Controllers
 
         [HttpPost]
         [Route("{slug}/comments")]
-        public async Task<IActionResult> PostArticleComment(string slug, CommentCreateRequestDto commentCreateDto)
+        public async Task<IActionResult> PostArticleComment(string slug, CommentCreateRequestWrapper commentCreateDto)
         {
             var article = await _repository.GetArticleAsync(slug);
 
@@ -353,7 +353,7 @@ namespace Conduit.Controllers
             // Get current user Id
             var userId = GetCurrentUserId();
 
-            var commentModel = _mapper.Map<Comment>(commentCreateDto);
+            var commentModel = _mapper.Map<Comment>(commentCreateDto.Comment);
             commentModel.AuthorId = userId;
             commentModel.ArticleId = article.Id;
 

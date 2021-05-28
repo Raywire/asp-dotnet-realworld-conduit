@@ -1,8 +1,12 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Conduit.DTOs.Requests
 {
+    public class UserUpdateRequestWrapper
+    {
+        [Required]
+        public UserUpdateRequestDto User { get; set; }
+    }
     public class UserUpdateRequestDto
     {
         [Required]

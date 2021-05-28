@@ -5,6 +5,11 @@ using Conduit.Models;
 
 namespace Conduit.DTOs.Requests
 {
+    public class ArticleCreateRequestWrapper
+    {
+        [Required]
+        public ArticleCreateRequestDto Article { get; set; }
+    }
     public class ArticleCreateRequestDto
     {
         [Required]

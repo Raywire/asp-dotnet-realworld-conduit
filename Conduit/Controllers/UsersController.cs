@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Conduit.Data;
 using Conduit.Models;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
@@ -83,7 +81,7 @@ namespace Conduit.Controllers
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(Guid id, UserUpdateRequestDto userUpdateRequestDto)
+        public async Task<IActionResult> PutUser(Guid id, UserUpdateRequestWrapper userUpdateRequestDto)
         {
             var user = await _repository.GetUserAsync(id);
 
@@ -96,7 +94,7 @@ namespace Conduit.Controllers
                 });
             }
 
-            _mapper.Map(userUpdateRequestDto, user);
+            _mapper.Map(userUpdateRequestDto.User, user);
 
             try
             {

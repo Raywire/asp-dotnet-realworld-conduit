@@ -34,13 +34,13 @@ namespace Conduit.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login(UserLoginRequestDto userData)
+        public async Task<IActionResult> Login(UserLoginRequestWrapper userData)
         {
-            User user = await GetUser(userData.Email, null);
+            User user = await GetUser(userData.User.Email, null);
 
             if (user != null)
             {
-                var passwordVerified = VerifyPassword(userData.Password, user.Password);
+                var passwordVerified = VerifyPassword(userData.User.Password, user.Password);
                 if (passwordVerified)
                 {
                     var jwtToken = GenerateJwtToken(user);
@@ -73,9 +73,9 @@ namespace Conduit.Controllers
 
         [HttpPost]
         [Route("signup")]
-        public async Task<IActionResult> Register([FromBody] UserRegisterRequestDto userData)
+        public async Task<IActionResult> Register([FromBody] UserRegisterRequestWrapper userData)
         {
-            User user = await _repository.GetUserByEmailOrUsernameAsync(userData.Email, userData.UserName);
+            User user = await _repository.GetUserByEmailOrUsernameAsync(userData.User.Email, userData.User.UserName);
 
             if (user != null)
             {
@@ -86,14 +86,14 @@ namespace Conduit.Controllers
                 });
             }
 
-            var userDataModel = _mapper.Map<User>(userData);
+            var userDataModel = _mapper.Map<User>(userData.User);
 
-            userDataModel.Password = BCrypt.Net.BCrypt.HashPassword(userData.Password);
+            userDataModel.Password = BCrypt.Net.BCrypt.HashPassword(userData.User.Password);
 
             await _repository.AddUserAsync(userDataModel);
             await _repository.SaveChangesAsync();
 
-            User createdUser = await GetUser(userData.Email, userData.UserName);
+            User createdUser = await GetUser(userData.User.Email, userData.User.UserName);
             var jwtToken = GenerateJwtToken(createdUser);
 
             return Ok(new UserRegisterResponse()
