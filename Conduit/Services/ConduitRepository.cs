@@ -113,6 +113,17 @@ namespace Conduit.Services
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Favorited))
+            {
+                var favorited = articlesResourceParameters.Favorited.Trim();
+                var author = await _context.Users.FirstOrDefaultAsync(u => u.UserName == favorited);
+
+                if (author != null)
+                {
+                    collection = collection.Where(a => a.Favorites.Any(f => f.AuthorId == author.Id));
+                }
+            }
+
             return await PagedList<Article>.Create(collection, articlesResourceParameters.PageNumber, articlesResourceParameters.PageSize);
 
         }
@@ -124,12 +135,13 @@ namespace Conduit.Services
                 throw new ArgumentNullException(nameof(articlesResourceParameters));
             }
 
+            var currentUser = await _context.Users.Include(f => f.Following).FirstOrDefaultAsync(u => u.Id == currentUserId);
+
             var collection = _context.Article
+                .Where(a => currentUser.Following.Select(y => y.FollowingId).Contains(a.Author.Id))
                 .Include(a => a.Author)
                 .Include(a => a.ArticleTags)
-                .Include(a => a.Favorites
-                .Where(f => f.AuthorId == currentUserId))
-                .Where(c => c.AuthorId == currentUserId)
+                .Include(a => a.Favorites.Where(f => f.AuthorId == currentUserId))
                 .AsSplitQuery();
 
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Search))

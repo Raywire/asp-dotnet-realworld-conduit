@@ -526,7 +526,8 @@ namespace Conduit.Controllers
                             pageSize = articlesResourceParameters.PageSize,
                             author = articlesResourceParameters.Author,
                             search = articlesResourceParameters.Search,
-                            tag = articlesResourceParameters.Tag
+                            tag = articlesResourceParameters.Tag,
+                            favorited = articlesResourceParameters.Favorited
                         });
                 case ResourceUriType.NextPage:
                     return Url.Link(urlLink,
@@ -536,7 +537,8 @@ namespace Conduit.Controllers
                         pageSize = articlesResourceParameters.PageSize,
                         author = articlesResourceParameters.Author,
                         search = articlesResourceParameters.Search,
-                        tag = articlesResourceParameters.Tag
+                        tag = articlesResourceParameters.Tag,
+                        favorited = articlesResourceParameters.Favorited
                     });
                 default:
                     return Url.Link(urlLink,
@@ -546,7 +548,8 @@ namespace Conduit.Controllers
                         pageSize = articlesResourceParameters.PageSize,
                         author = articlesResourceParameters.Author,
                         search = articlesResourceParameters.Search,
-                        tag = articlesResourceParameters.Tag
+                        tag = articlesResourceParameters.Tag,
+                        favorited = articlesResourceParameters.Favorited
                     });
             }
         }
