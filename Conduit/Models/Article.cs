@@ -22,9 +22,6 @@ namespace Conduit.Models
         [MaxLength(1200)]
         public string Description { get; set; }
 
-        [MaxLength(64)]
-        public string TagList { get; set; }
-
         public DateTime CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
@@ -41,5 +38,9 @@ namespace Conduit.Models
         public Guid AuthorId { get; set; }
 
         public List<Favorite> Favorites { get; set; }
+
+        public List<ArticleTag> ArticleTags { get; set; }
+
+        public List<string> TagList => (ArticleTags?.Select(x => x.TagId) ?? Enumerable.Empty<string>()).ToList();
     }
 }

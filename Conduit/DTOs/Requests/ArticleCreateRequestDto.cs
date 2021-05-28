@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Conduit.Models;
 
 namespace Conduit.DTOs.Requests
 {
@@ -14,6 +16,6 @@ namespace Conduit.DTOs.Requests
         public string Description { get; set; }
 
         [MaxLength(64)]
-        public string TagList { get; set; }
+        public List<string> TagList { get; set; } = new List<string>();
     }
 }

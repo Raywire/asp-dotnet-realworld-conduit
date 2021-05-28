@@ -35,6 +35,14 @@ namespace Conduit.Services
         Task<Follow> GetProfileFollowAsync(Guid followingId, Guid authorId);
         Task<User> GetProfileAsync(Guid userId);
 
+        Task<IEnumerable<Tag>> GetTagsAsync();
+        Task<Tag> GetTagAsync(string tagId);
+        Task AddTagAsync(Tag tag);
+        void DeleteArticleTags(List<ArticleTag> articleTags);
+        Task AddArticleTagsAsync(List<Tag> tags, Article article);
+        Task<ArticleTag> GetArticleTagAsync(string tagId, Guid articleId);
+        bool TagExists(string tagId);
+
         Task<int> SaveChangesAsync();
     }
 }

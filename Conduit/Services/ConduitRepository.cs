@@ -48,9 +48,20 @@ namespace Conduit.Services
         {
             if (currentUserId != null)
             {
-                return await _context.Article.Include(a => a.Author).Include(a => a.Favorites.Where(f => f.AuthorId == Guid.Parse(currentUserId))).Where(a => a.Slug == slug).FirstOrDefaultAsync();
+                return await _context.Article
+                    .Include(a => a.Author)
+                    .Include(a => a.ArticleTags)
+                    .Include(a => a.Favorites.Where(f => f.AuthorId == Guid.Parse(currentUserId)))
+                    .Where(a => a.Slug == slug)
+                    .AsSingleQuery()
+                    .FirstOrDefaultAsync();
             }
-            return await _context.Article.Include(a => a.Author).Where(a => a.Slug == slug).FirstOrDefaultAsync();
+            return await _context.Article
+                .Include(a => a.Author)
+                .Include(a => a.ArticleTags)
+                .Where(a => a.Slug == slug)
+                .AsSingleQuery()
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Comment> GetArticleCommentAsync(Guid commentId)
@@ -70,7 +81,7 @@ namespace Conduit.Services
                 throw new ArgumentNullException(nameof(articlesResourceParameters));
             }
 
-            var collection = _context.Article.Include(a => a.Author) as IQueryable<Article>;
+            var collection = _context.Article.Include(a => a.Author).Include(a => a.ArticleTags).AsSplitQuery();
 
             if (currentUserId != null)
             {
@@ -103,7 +114,13 @@ namespace Conduit.Services
                 throw new ArgumentNullException(nameof(articlesResourceParameters));
             }
 
-            var collection = _context.Article.Include(a => a.Author).Include(a => a.Favorites.Where(f => f.AuthorId == currentUserId)).Where(c => c.AuthorId == currentUserId);
+            var collection = _context.Article
+                .Include(a => a.Author)
+                .Include(a => a.ArticleTags)
+                .Include(a => a.Favorites
+                .Where(f => f.AuthorId == currentUserId))
+                .Where(c => c.AuthorId == currentUserId)
+                .AsSplitQuery();
 
             if (!string.IsNullOrWhiteSpace(articlesResourceParameters.Search))
             {
@@ -193,6 +210,46 @@ namespace Conduit.Services
         public async Task<Follow> GetProfileFollowAsync(Guid followingId, Guid authorId)
         {
             return await _context.Follows.Where(c => c.FollowingId == followingId && c.FollowerId == authorId).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<Tag>> GetTagsAsync()
+        {
+            return await _context.Tags.OrderBy(t => t.TagId).ToListAsync();
+        }
+
+        public async Task AddTagAsync(Tag tag)
+        {
+            await _context.Tags.AddAsync(tag);
+        }
+
+        public bool TagExists(string tagId)
+        {
+            return _context.Tags.Any(t => t.TagId == tagId);
+        }
+
+        public async Task<Tag> GetTagAsync(string tagId)
+        {
+            return await _context.Tags.FindAsync(tagId);
+        }
+
+
+        public async Task<ArticleTag> GetArticleTagAsync(string tagId, Guid articleId)
+        {
+            return await _context.ArticleTags.Where(at => at.TagId == tagId && at.ArticleId == articleId).FirstOrDefaultAsync();
+        }
+
+        public async Task AddArticleTagsAsync(List<Tag> tags, Article article)
+        {
+            await _context.ArticleTags.AddRangeAsync(tags.Select(x => new ArticleTag()
+            {
+                Article = article,
+                Tag = x
+            }));
+        }
+
+        public void DeleteArticleTags(List<ArticleTag> articleTags)
+        {
+            _context.ArticleTags.RemoveRange(articleTags);
         }
 
         public async Task<int> SaveChangesAsync()

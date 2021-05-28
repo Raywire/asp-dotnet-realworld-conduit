@@ -19,6 +19,8 @@ namespace Conduit.Data
         public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<Favorite> Favorites { get; set; }
         public virtual DbSet<Follow> Follows { get; set; }
+        public virtual DbSet<Tag> Tags { get; set; } 
+        public virtual DbSet<ArticleTag> ArticleTags { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -55,6 +57,8 @@ namespace Conduit.Data
                     .HasForeignKey(pt => pt.FollowerId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+
+            modelBuilder.Entity<ArticleTag>().HasKey(at => new { at.ArticleId, at.TagId });
 
             OnModelCreatingPartial(modelBuilder);
         }

@@ -1,5 +1,5 @@
 ﻿using System;
-using Conduit.Models;
+using System.Collections.Generic;
 
 namespace Conduit.DTOs.Responses
 {
@@ -13,7 +13,7 @@ namespace Conduit.DTOs.Responses
 
         public string Description { get; set; }
 
-        public string TagList { get; set; }
+        public List<string> TagList { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

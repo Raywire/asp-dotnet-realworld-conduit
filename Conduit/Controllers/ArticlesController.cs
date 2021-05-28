@@ -171,6 +171,46 @@ namespace Conduit.Controllers
                 article.Slug = GenerateSlug(articleUpdateRequestDto.Title);
             }
 
+            // Get current tags for article
+            var articleTagList = article.TagList ?? Enumerable.Empty<string>();
+
+            var tagsToAdd = new List<Tag>();
+            var articleTagsToDelete = new List<ArticleTag>();
+
+            // Check if incoming tags from update exist, if not create them
+            // Check if incoming tags exist in article if not add them to list
+            foreach (var tag in articleUpdateRequestDto.TagList ?? Enumerable.Empty<string>())
+            {
+                var t = await _repository.GetTagAsync(tag);
+                if (t == null)
+                {
+                    t = new Tag() { TagId = tag };
+
+                    await _repository.AddTagAsync(t);
+                    await _repository.SaveChangesAsync();
+                }
+                if (!articleTagList.Contains(tag))
+                {
+                    tagsToAdd.Add(t);
+                }
+            }
+
+            // Check if incoming tags differ from current tags then add the removed ones to list
+            foreach (var tag in articleTagList)
+            {
+                var articleTag = articleUpdateRequestDto.TagList.FirstOrDefault(t => t == tag);
+                if (articleTag == null)
+                {
+                    var tagToDelete = article.ArticleTags.Where(at => at.TagId == tag).FirstOrDefault();
+                    articleTagsToDelete.Add(tagToDelete);
+                }
+            }
+
+            // add the new article tags
+            await _repository.AddArticleTagsAsync(tagsToAdd, article);
+            // delete the article tags that do not exist anymore
+            _repository.DeleteArticleTags(articleTagsToDelete);
+
             _mapper.Map(articleUpdateRequestDto, article);
 
             try
@@ -206,12 +246,28 @@ namespace Conduit.Controllers
 
             var user = await _repository.GetUserAsync(userId);
 
+            var tags = new List<Tag>();
+            foreach (var tag in articleCreateDto.TagList ?? Enumerable.Empty<string>())
+            {
+                var t = await _repository.GetTagAsync(tag);
+                if (t == null)
+                {
+                    t = new Tag() { TagId = tag };
+
+                    await _repository.AddTagAsync(t);
+                    await _repository.SaveChangesAsync();
+                }
+                tags.Add(t);
+            }
+
             var articleModel = _mapper.Map<Article>(articleCreateDto);
             articleModel.Author = user;
 
             articleModel.Slug = GenerateSlug(articleModel.Title);
 
             await _repository.AddArticleAsync(articleModel);
+            await _repository.AddArticleTagsAsync(tags, articleModel);
+
             await _repository.SaveChangesAsync();
 
             var articleReadDto = _mapper.Map<ArticlesResponseDto>(articleModel);
