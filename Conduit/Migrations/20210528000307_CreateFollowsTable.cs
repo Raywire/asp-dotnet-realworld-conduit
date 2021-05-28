@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Conduit.Migrations
 {
-    public partial class CreateFollow : Migration
+    public partial class CreateFollowsTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Conduit.Migrations
 {
     [DbContext(typeof(ConduitContext))]
-    [Migration("20210527135820_CreateFollow")]
-    partial class CreateFollow
+    [Migration("20210528000307_CreateFollowsTable")]
+    partial class CreateFollowsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -246,14 +246,14 @@ namespace Conduit.Migrations
 
             modelBuilder.Entity("Conduit.Models.Follow", b =>
                 {
-                    b.HasOne("Conduit.Models.User", "Following")
-                        .WithMany("Followers")
+                    b.HasOne("Conduit.Models.User", "Follower")
+                        .WithMany("Following")
                         .HasForeignKey("FollowerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Conduit.Models.User", "Follower")
-                        .WithMany("Following")
+                    b.HasOne("Conduit.Models.User", "Following")
+                        .WithMany("Followers")
                         .HasForeignKey("FollowingId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();

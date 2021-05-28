@@ -244,14 +244,14 @@ namespace Conduit.Migrations
 
             modelBuilder.Entity("Conduit.Models.Follow", b =>
                 {
-                    b.HasOne("Conduit.Models.User", "Following")
-                        .WithMany("Followers")
+                    b.HasOne("Conduit.Models.User", "Follower")
+                        .WithMany("Following")
                         .HasForeignKey("FollowerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Conduit.Models.User", "Follower")
-                        .WithMany("Following")
+                    b.HasOne("Conduit.Models.User", "Following")
+                        .WithMany("Followers")
                         .HasForeignKey("FollowingId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
