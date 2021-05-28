@@ -38,5 +38,16 @@
     <Folder Include="Services\" />
     <Folder Include="ResourceParameters\" />
     <Folder Include="DTOs\Responses\Tag\" />
+    <Folder Include="DTOs\Responses\Article\" />
+    <Folder Include="DTOs\Responses\Comment\" />
+    <Folder Include="DTOs\Responses\User\" />
+    <Folder Include="DTOs\Responses\Profile\" />
+    <Folder Include="DTOs\Responses\Follow\" />
+    <Folder Include="DTOs\Responses\Author\" />
+    <Folder Include="DTOs\Responses\Error\" />
+    <Folder Include="DTOs\Responses\QueryParams\" />
+    <Folder Include="DTOs\Requests\Article\" />
+    <Folder Include="DTOs\Requests\Comment\" />
+    <Folder Include="DTOs\Requests\User\" />
   </ItemGroup>
 </Project>
