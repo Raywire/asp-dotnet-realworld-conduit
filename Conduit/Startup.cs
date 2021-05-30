@@ -1,22 +1,20 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Conduit.Data;
+using Conduit.DTOs.Responses;
 using Conduit.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -54,28 +52,24 @@ namespace Conduit
                     // find out which status code to use
                     var actionExecutingContext = context as Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext;
 
-                    // if there aer modelstate errors & all arguments were correctly
+                    // if there are modelstate errors & all arguments were correctly
                     // found/parsed we're dealing with validation errors
                     if ((context.ModelState.ErrorCount > 0) && (actionExecutingContext?.ActionArguments.Count == context.ActionDescriptor.Parameters.Count))
                     {
-                        problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
-                        problemDetails.Status = StatusCodes.Status422UnprocessableEntity;
-                        problemDetails.Title = "One of more validation errors occurred.";
-
-                        return new UnprocessableEntityObjectResult(problemDetails)
+                        return new UnprocessableEntityObjectResult(new ValidationErrorResponse()
                         {
-                            ContentTypes = { "application/problem+json" }
-                        };
+                            Errors = problemDetails.Errors.ToDictionary(x => x.Key[(x.Key.IndexOf(".") + 1)..].ToLower(), x => x.Value),
+                            Success = false
+                        });
                     }
 
                     // if one of the arguments wasn't correctly found / couldn't be parsed
                     // we're dealing with null/unparseable input
-                    problemDetails.Status = StatusCodes.Status400BadRequest;
-                    problemDetails.Title = "One or more errors on input occurred.";
-                    return new BadRequestObjectResult(problemDetails)
+                    return new BadRequestObjectResult(new ValidationErrorResponse()
                     {
-                        ContentTypes = { "application/problem+json" }
-                    };
+                        Errors = problemDetails.Errors.ToDictionary(x => x.Key[(x.Key.IndexOf(".") + 1)..].ToLower(), x => x.Value),
+                        Success = false
+                    });
                 };
             });
 
@@ -93,6 +87,17 @@ namespace Conduit
                     ValidAudience = Configuration["Jwt:Audience"],
                     ValidIssuer = Configuration["Jwt:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                        {
+                            context.Response.Headers.Add("Token-Expired", "true");
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
