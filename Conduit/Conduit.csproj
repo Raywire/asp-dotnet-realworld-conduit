@@ -49,5 +49,7 @@
     <Folder Include="DTOs\Requests\Article\" />
     <Folder Include="DTOs\Requests\Comment\" />
     <Folder Include="DTOs\Requests\User\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Extensions\CustomExceptionMiddleware\" />
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Conduit.Data;
 using Conduit.DTOs.Responses;
+using Conduit.Extensions;
 using Conduit.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -148,6 +149,9 @@ namespace Conduit
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASP DotNet Realworld Conduit v1");
                 c.RoutePrefix = string.Empty;
             });
+
+            //app.ConfigureExceptionHandler();
+            app.ConfigureCustomExceptionMiddleware();
 
             app.UseHttpsRedirection();
 
