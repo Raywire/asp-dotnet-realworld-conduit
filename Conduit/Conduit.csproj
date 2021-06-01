@@ -1,8 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Conduit</RootNamespace>
+    <UserSecretsId>f3ed8e0f-ab22-4ad5-a4cf-2284721a30d8</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'asp_dotnet_realworld_conduit' " />

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +35,12 @@ namespace Conduit
         public void ConfigureServices(IServiceCollection services)
         {
             var connection = Configuration.GetConnectionString("ConduitConnection");
-            services.AddDbContext<ConduitContext>(options => options.UseSqlServer(connection));
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection);
+            builder.InitialCatalog = Configuration["InitialCatalog"];
+            builder.UserID = Configuration["UserID"];
+            builder.Password = Configuration["Password"];
+
+            services.AddDbContext<ConduitContext>(options => options.UseSqlServer(builder.ConnectionString));
 
             services.AddCors();
 
@@ -87,7 +93,8 @@ namespace Conduit
                     ValidateAudience = true,
                     ValidAudience = Configuration["Jwt:Audience"],
                     ValidIssuer = Configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])),
+                    ClockSkew = TimeSpan.FromMinutes(0)
                 };
                 options.Events = new JwtBearerEvents
                 {
