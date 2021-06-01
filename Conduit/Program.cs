@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
+using Conduit.Helpers;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Conduit
 {
@@ -13,6 +9,9 @@ namespace Conduit
     {
         public static void Main(string[] args)
         {
+            var root = "../";
+            var dotenv = Path.Combine(root, ".env");
+            DotEnv.Load(dotenv);
             CreateHostBuilder(args).Build().Run();
         }
 

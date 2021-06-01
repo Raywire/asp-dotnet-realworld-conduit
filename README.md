@@ -528,6 +528,7 @@ dotnet user-secrets set "InitialCatalog" ""
 dotnet user-secrets set "UserID" ""
 dotnet user-secrets set "Password" ""
 dotnet user-secrets set "Jwt:Key" ""
+dotnet user-secrets set "MailSettings:MailFrom" ""
 ```
 
 ## List user secrets

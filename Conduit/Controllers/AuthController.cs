@@ -24,12 +24,14 @@ namespace Conduit.Controllers
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly IConduitRepository _repository;
+        private readonly IMailService _mailService;
 
-        public AuthController(IConfiguration configuration, IMapper mapper, IConduitRepository repository)
+        public AuthController(IConfiguration configuration, IMapper mapper, IConduitRepository repository, IMailService mailService)
         {
             _configuration = configuration;
             _mapper = mapper;
             _repository = repository;
+            _mailService = mailService;
         }
 
         [HttpPost]
@@ -95,6 +97,12 @@ namespace Conduit.Controllers
 
             User createdUser = await GetUser(userData.User.Email, userData.User.UserName);
             var jwtToken = GenerateJwtToken(createdUser);
+
+            if (createdUser != null)
+            {
+                string name = $"{createdUser.FirstName} {createdUser.LastName}";
+                await _mailService.Send("New Registration", "Welcome to Conduit, share your stories.", name, createdUser.Email);
+            }
 
             return Ok(new UserRegisterResponse()
             {
