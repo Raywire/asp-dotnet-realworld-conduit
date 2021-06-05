@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 
 namespace Conduit
 {
@@ -43,7 +44,11 @@ namespace Conduit
 
             services.AddCors();
 
-            services.AddControllers().ConfigureApiBehaviorOptions(setupAction =>
+            services.AddControllers()
+            .AddNewtonsoftJson(s => {
+                s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            })
+            .ConfigureApiBehaviorOptions(setupAction =>
             {
                 setupAction.InvalidModelStateResponseFactory = context =>
                 {
@@ -64,7 +69,7 @@ namespace Conduit
                     {
                         return new UnprocessableEntityObjectResult(new ValidationErrorResponse()
                         {
-                            Errors = problemDetails.Errors.ToDictionary(x => x.Key[(x.Key.IndexOf(".") + 1)..].ToLower(), x => x.Value),
+                            Errors = problemDetails.Errors.ToDictionary(x => x.Key.Split(".").LastOrDefault(), x => x.Value),
                             Success = false
                         });
                     }
@@ -73,7 +78,7 @@ namespace Conduit
                     // we're dealing with null/unparseable input
                     return new BadRequestObjectResult(new ValidationErrorResponse()
                     {
-                        Errors = problemDetails.Errors.ToDictionary(x => x.Key[(x.Key.IndexOf(".") + 1)..].ToLower(), x => x.Value),
+                        Errors = problemDetails.Errors.ToDictionary(x => x.Key.Split(".").LastOrDefault(), x => x.Value),
                         Success = false
                     });
                 };
