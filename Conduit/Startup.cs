@@ -163,8 +163,7 @@ namespace Conduit
                 c.RoutePrefix = string.Empty;
             });
 
-            //app.ConfigureExceptionHandler();
-            app.ConfigureCustomExceptionMiddleware();
+            app.UseCustomExceptionMiddleware();
 
             app.UseHttpsRedirection();
 
