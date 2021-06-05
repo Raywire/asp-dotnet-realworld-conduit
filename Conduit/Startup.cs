@@ -42,7 +42,7 @@ namespace Conduit
 
             services.AddDbContext<ConduitContext>(options => options.UseSqlServer(builder.ConnectionString));
 
-            services.AddCors();
+            services.ConfigureCors();
 
             services.AddControllers()
             .AddNewtonsoftJson(s => {
@@ -169,11 +169,6 @@ namespace Conduit
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseCors(x => x
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
 
             app.UseAuthentication();
 
