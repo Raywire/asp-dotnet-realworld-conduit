@@ -13,6 +13,8 @@ namespace Conduit.DTOs.Responses
 
         public string Description { get; set; }
 
+        public string Body { get; set; }
+
         public List<string> TagList { get; set; }
 
         public DateTime CreatedAt { get; set; }

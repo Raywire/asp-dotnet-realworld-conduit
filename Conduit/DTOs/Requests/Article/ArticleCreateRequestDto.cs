@@ -16,9 +16,12 @@ namespace Conduit.DTOs.Requests
         [MaxLength(128)]
         public string Title { get; set; }
 
+        [MaxLength(256)]
+        public string Description { get; set; }
+
         [Required]
         [MaxLength(1200)]
-        public string Description { get; set; }
+        public string Body { get; set; }
 
         [MaxLength(64)]
         public List<string> TagList { get; set; } = new List<string>();

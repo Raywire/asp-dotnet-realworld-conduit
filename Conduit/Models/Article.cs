@@ -19,8 +19,11 @@ namespace Conduit.Models
         [MaxLength(128)]
         public string Title { get; set; }
 
-        [MaxLength(1200)]
+        [MaxLength(256)]
         public string Description { get; set; }
+
+        [MaxLength(1200)]
+        public string Body { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
