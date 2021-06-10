@@ -34,11 +34,13 @@ namespace Conduit
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var jwtSecret = Configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_SECRET");
             var connection = Configuration.GetConnectionString("ConduitConnection");
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection);
-            builder.InitialCatalog = Configuration["InitialCatalog"];
-            builder.UserID = Configuration["UserID"];
-            builder.Password = Configuration["Password"];
+            builder.DataSource = Configuration["DataSource"] ?? Environment.GetEnvironmentVariable("MSSQL_DATASOURCE");
+            builder.InitialCatalog = Configuration["InitialCatalog"] ?? Environment.GetEnvironmentVariable("MSSQL_DB");
+            builder.UserID = Configuration["UserID"] ?? Environment.GetEnvironmentVariable("MSSQL_USER");
+            builder.Password = Configuration["Password"] ?? Environment.GetEnvironmentVariable("MSSQL_PASSWORD");
 
             services.AddDbContext<ConduitContext>(options => options.UseSqlServer(builder.ConnectionString));
 
@@ -99,7 +101,7 @@ namespace Conduit
                     ValidateAudience = true,
                     ValidAudience = Configuration["Jwt:Audience"],
                     ValidIssuer = Configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
                     ClockSkew = TimeSpan.FromMinutes(0)
                 };
                 options.Events = new JwtBearerEvents

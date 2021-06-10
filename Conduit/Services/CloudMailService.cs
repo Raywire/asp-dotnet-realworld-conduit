@@ -18,8 +18,9 @@ namespace Conduit.Services
         public async Task Send(string subject, string message, string name, string email)
         {
             var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
+            var mailFrom = _configuration["MailSettings:MailFrom"] ?? Environment.GetEnvironmentVariable("MAIL_FROM");
             var client = new SendGridClient(apiKey);
-            var from = new EmailAddress(_configuration["MailSettings:MailFrom"], "Conduit");
+            var from = new EmailAddress(mailFrom, "Conduit");
             var to = new EmailAddress(email, name);
             var htmlContent = "";
             var msg = MailHelper.CreateSingleEmail(from, to, subject, message, htmlContent);

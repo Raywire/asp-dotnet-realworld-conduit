@@ -3,7 +3,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Conduit.Data;
 using Conduit.DTOs.Requests;
 using Conduit.DTOs.Responses;
 using Conduit.Models;
@@ -127,6 +126,7 @@ namespace Conduit.Controllers
         private string GenerateJwtToken(User user)
         {
             string userRole = user.Admin ? "admin" : "user";
+            var jwtSecret = _configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_SECRET");
             //create claims details based on the user information
             var claims = new[] {
                     new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
@@ -140,7 +140,7 @@ namespace Conduit.Controllers
                     new Claim(ClaimTypes.Role, userRole)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
             var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

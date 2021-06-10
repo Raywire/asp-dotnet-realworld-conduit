@@ -524,6 +524,7 @@ dotnet ef migrations remove
 ## Set user secrets
 ```
 dotnet user-secrets init
+dotnet user-secrets set "DataSource" ""
 dotnet user-secrets set "InitialCatalog" ""
 dotnet user-secrets set "UserID" ""
 dotnet user-secrets set "Password" ""
@@ -536,6 +537,20 @@ dotnet user-secrets set "MailSettings:MailFrom" ""
 dotnet user-secrets list  
 ```
 
+## Build and run the Docker image
+```
+docker compose build
+docker compose up
+```
+or
+```
+docker compose up --build
+```
+
+## Remove the images
+```
+docker compose down
+```
 ## Author
 
 *   **Ryan Wire** 
