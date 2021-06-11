@@ -1,12 +1,17 @@
 # syntax=docker/dockerfile:1
-FROM mcr.microsoft.com/dotnet/sdk:5.0
-COPY . /app
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
 WORKDIR /app
-RUN dotnet tool install -g dotnet-ef
-ENV PATH $PATH:/root/.dotnet/tools
-RUN dotnet ef --version
-RUN ["dotnet", "restore"]
-RUN ["dotnet", "build"]
-EXPOSE 80/tcp
-RUN chmod +x ./entrypoint.sh
-CMD /bin/bash ./entrypoint.sh
+
+# Copy csproj and restore as distinct layers
+COPY Conduit/*.csproj ./
+RUN dotnet restore
+
+# Copy everything else and build
+COPY . ./
+RUN dotnet publish asp-dotnet-realworld-conduit.sln -c Release -o out
+
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+WORKDIR /app
+COPY --from=build-env /app/out .
+ENTRYPOINT ["dotnet", "Conduit.dll"]

@@ -41,6 +41,7 @@ namespace Conduit
             builder.InitialCatalog = Configuration["InitialCatalog"] ?? Environment.GetEnvironmentVariable("MSSQL_DB");
             builder.UserID = Configuration["UserID"] ?? Environment.GetEnvironmentVariable("MSSQL_USER");
             builder.Password = Configuration["Password"] ?? Environment.GetEnvironmentVariable("MSSQL_PASSWORD");
+            builder.TrustServerCertificate = true;
 
             services.AddDbContext<ConduitContext>(options => options.UseSqlServer(builder.ConnectionString));
 
@@ -158,6 +159,9 @@ namespace Conduit
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            // Run migrations in code
+            DatabaseManagementService.MigrationInitialisation(app);
 
             app.UseSwagger();
             app.UseSwaggerUI(c => {

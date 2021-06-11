@@ -537,7 +537,8 @@ dotnet user-secrets set "MailSettings:MailFrom" ""
 dotnet user-secrets list  
 ```
 
-## Build and run the Docker image
+## Build and run the Docker image using docker compose
+This creates containers for the database and the api.
 ```
 docker compose build
 docker compose up
@@ -547,10 +548,18 @@ or
 docker compose up --build
 ```
 
-## Remove the images
+## Remove the containers
 ```
 docker compose down
 ```
+
+## Build and run the Docker image in a container
+This creates a container for the api that can be deployed using CI/CD
+```
+docker build -t realworld_conduit .
+docker run -d -p 8000:80 --name conduit realworld_conduit
+```
+
 ## Author
 
 *   **Ryan Wire** 
