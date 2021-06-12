@@ -14,4 +14,7 @@ RUN dotnet publish asp-dotnet-realworld-conduit.sln -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /app
 COPY --from=build-env /app/out .
+
+ENV ASPNETCORE_URLS=http://*:80
+
 ENTRYPOINT ["dotnet", "Conduit.dll"]

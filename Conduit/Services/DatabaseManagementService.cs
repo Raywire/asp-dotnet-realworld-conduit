@@ -12,8 +12,15 @@ namespace Conduit.Services
         {
             using (var serviceScope = app.ApplicationServices.CreateScope())
             {
-                // Takes all of our migrations files and apply them against the database in case they are not implemented
-                serviceScope.ServiceProvider.GetService<ConduitContext>().Database.Migrate();
+                try
+                {                    
+                    // Takes all of our migrations files and apply them against the database in case they are not implemented
+                    serviceScope.ServiceProvider.GetService<ConduitContext>().Database.Migrate();
+                }
+                catch (System.Exception)
+                {
+                    throw;
+                }
             }
         }
     }

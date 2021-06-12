@@ -1,4 +1,7 @@
 steps:
+- name: 'mcr.microsoft.com/dotnet/sdk:5.0'
+  entrypoint: 'dotnet'
+  args: ['test']
 # Build the container image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/asp-dotnet-realworld-conduit:$COMMIT_SHA', '.']
