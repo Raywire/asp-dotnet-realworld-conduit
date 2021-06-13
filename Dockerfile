@@ -6,8 +6,14 @@ WORKDIR /app
 COPY Conduit/*.csproj ./
 RUN dotnet restore
 
+RUN dotnet tool install -g dotnet-ef
+ENV PATH $PATH:/root/.dotnet/tools
+
 # Copy everything else and build
 COPY . ./
+
+# RUN chmod +x ./entrypoint.sh
+# RUN ["/bin/bash", "./entrypoint.sh"]
 RUN dotnet publish asp-dotnet-realworld-conduit.sln -c Release -o out
 
 # Build runtime image
