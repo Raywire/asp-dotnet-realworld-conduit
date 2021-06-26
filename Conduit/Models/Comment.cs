@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Conduit.Models
 {
-    public class Comment
+    public class Comment : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
@@ -12,10 +12,6 @@ namespace Conduit.Models
         [MaxLength(256)]
         [Required]
         public string Body { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
 
         [ForeignKey("AuthorId")]
         public User Author { get; set; }

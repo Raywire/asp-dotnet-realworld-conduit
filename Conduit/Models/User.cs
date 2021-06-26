@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Conduit.Models
 {
-    public class User
+    public class User : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
@@ -35,10 +35,6 @@ namespace Conduit.Models
         public string Photo { get; set; }
 
         public bool Admin { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
 
         public List<Favorite> Favorites { get; set; }
 

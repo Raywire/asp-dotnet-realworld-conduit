@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Conduit.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Conduit.Data
 {
@@ -65,29 +67,30 @@ namespace Conduit.Data
 
         public override int SaveChanges()
         {
-            AddTimestamps();
+            SetTimestamps();
             return base.SaveChanges();
         }
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
-            AddTimestamps();
+            SetTimestamps();
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
-        private void AddTimestamps()
+        private void SetTimestamps()
         {
-            var entities = ChangeTracker.Entries().Where(x => (x.State == EntityState.Added || x.State == EntityState.Modified));
+            IEnumerable<EntityEntry> entities = ChangeTracker.Entries()
+                .Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
 
-            foreach (var entity in entities)
+            foreach (EntityEntry entity in entities)
             {
                 DateTime now = DateTime.UtcNow;
 
                 if (entity.State == EntityState.Added)
                 {
-                    entity.Property("CreatedAt").CurrentValue = now;
+                    ((BaseEntity)entity.Entity).CreatedAt = now;
                 }
-                entity.Property("UpdatedAt").CurrentValue = now;
+                ((BaseEntity)entity.Entity).UpdatedAt = now;
             }
         }
 

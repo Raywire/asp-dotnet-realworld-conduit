@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Conduit.Models
 {
-    public class Favorite
+    public class Favorite : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
@@ -18,9 +18,5 @@ namespace Conduit.Models
         public Article Article { get; set; }
 
         public Guid ArticleId { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
     }
 }

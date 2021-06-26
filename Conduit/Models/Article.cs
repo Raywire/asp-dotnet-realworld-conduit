@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Conduit.Models
 {
-    public class Article
+    public class Article : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
@@ -24,10 +24,6 @@ namespace Conduit.Models
 
         [MaxLength(1200)]
         public string Body { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
 
         [NotMapped]
         public bool Favorited => Favorites?.Any() ?? false;
