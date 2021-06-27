@@ -6,9 +6,6 @@ WORKDIR /app
 COPY Conduit/*.csproj ./
 RUN dotnet restore
 
-RUN dotnet tool install -g dotnet-ef
-ENV PATH $PATH:/root/.dotnet/tools
-
 # Copy everything else and build
 COPY . ./
 

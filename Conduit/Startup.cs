@@ -158,10 +158,10 @@ namespace Conduit
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                // Run migrations in code
+                DatabaseManagementService.MigrationInitialisation(app);
             }
 
-            // Run migrations in code
-            DatabaseManagementService.MigrationInitialisation(app);
 
             app.UseSwagger();
             app.UseSwaggerUI(c => {
