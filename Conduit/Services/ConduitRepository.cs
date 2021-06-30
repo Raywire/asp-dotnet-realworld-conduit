@@ -21,7 +21,7 @@ namespace Conduit.Services
 
         public async Task AddArticleAsync(Article article)
         {
-            await _context.Article.AddAsync(article);
+            await _context.Articles.AddAsync(article);
         }
 
         public async Task AddArticleCommentAsync(Comment comment)
@@ -31,12 +31,12 @@ namespace Conduit.Services
 
         public bool ArticleExists(Guid articleId)
         {
-            return _context.Article.Any(e => e.Id == articleId);
+            return _context.Articles.Any(e => e.Id == articleId);
         }
 
         public void DeleteArticle(Article article)
         {
-            _context.Article.Remove(article);
+            _context.Articles.Remove(article);
         }
 
         public void DeleteArticleComment(Comment comment)
@@ -48,7 +48,7 @@ namespace Conduit.Services
         {
             if (currentUserId != null)
             {
-                return await _context.Article
+                return await _context.Articles
                     .Include(a => a.Author)
                     .Include(a => a.ArticleTags)
                     .Include(a => a.Favorites.Where(f => f.AuthorId == Guid.Parse(currentUserId)))
@@ -56,7 +56,7 @@ namespace Conduit.Services
                     .AsSingleQuery()
                     .FirstOrDefaultAsync();
             }
-            return await _context.Article
+            return await _context.Articles
                 .Include(a => a.Author)
                 .Include(a => a.ArticleTags)
                 .Where(a => a.Slug == slug)
@@ -81,7 +81,7 @@ namespace Conduit.Services
                 throw new ArgumentNullException(nameof(articlesResourceParameters));
             }
 
-            var collection = _context.Article.Include(a => a.Author).Include(a => a.ArticleTags).AsSplitQuery();
+            var collection = _context.Articles.Include(a => a.Author).Include(a => a.ArticleTags).AsSplitQuery();
 
             if (currentUserId != null)
             {
@@ -137,7 +137,7 @@ namespace Conduit.Services
 
             var currentUser = await _context.Users.Include(f => f.Following).FirstOrDefaultAsync(u => u.Id == currentUserId);
 
-            var collection = _context.Article
+            var collection = _context.Articles
                 .Where(a => currentUser.Following.Select(y => y.FollowingId).Contains(a.Author.Id))
                 .Include(a => a.Author)
                 .Include(a => a.ArticleTags)

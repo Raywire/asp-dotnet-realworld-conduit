@@ -17,7 +17,7 @@ namespace Conduit.Data
         }
 
         public virtual DbSet<User> Users { get; set; }
-        public DbSet<Article> Article { get; set; }
+        public DbSet<Article> Articles { get; set; }
         public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<Favorite> Favorites { get; set; }
         public virtual DbSet<Follow> Follows { get; set; }
