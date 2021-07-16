@@ -515,7 +515,7 @@ dotnet ef database update
 
 ### Create a migration
 ```
-dotnet ef migrations add initialMigration
+dotnet ef migrations add initialMigration  -- --provider SqlServer/Postgres
 ```
 ### Undo migrations
 ```
