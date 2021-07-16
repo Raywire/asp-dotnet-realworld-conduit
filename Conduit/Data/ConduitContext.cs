@@ -26,13 +26,6 @@ namespace Conduit.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.Property(e => e.CreatedAt)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
-            });
-
             modelBuilder.Entity<Follow>(b =>
             {
                 b.HasKey(t => new { t.FollowerId, t.FollowingId });

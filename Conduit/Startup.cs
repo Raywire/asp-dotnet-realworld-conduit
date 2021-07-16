@@ -19,6 +19,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
+using Npgsql;
 
 namespace Conduit
 {
@@ -35,6 +36,8 @@ namespace Conduit
         public void ConfigureServices(IServiceCollection services)
         {
             var jwtSecret = Configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_SECRET");
+
+            // MSSQL Connection
             var connection = Configuration.GetConnectionString("ConduitConnection");
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection);
             builder.DataSource = Configuration["DataSource"] ?? Environment.GetEnvironmentVariable("MSSQL_DATASOURCE");
@@ -43,7 +46,21 @@ namespace Conduit
             builder.Password = Configuration["Password"] ?? Environment.GetEnvironmentVariable("MSSQL_PASSWORD");
             builder.TrustServerCertificate = true;
 
-            services.AddDbContext<ConduitContext>(options => options.UseSqlServer(builder.ConnectionString));
+            // services.AddDbContext<ConduitContext>(options => options.UseSqlServer(builder.ConnectionString));
+
+            // Postgres Connection
+            var postgresConnection = Configuration.GetConnectionString("ConduitConnection");
+            NpgsqlConnectionStringBuilder postgresBuilder = new NpgsqlConnectionStringBuilder(postgresConnection);
+            postgresBuilder.Host = Configuration["PostgresDataSource"] ?? Environment.GetEnvironmentVariable("POSTGRES_DATASOURCE");
+            postgresBuilder.Username = Configuration["PostgresUserID"] ?? Environment.GetEnvironmentVariable("POSTGRES_USER");
+            postgresBuilder.Password = Configuration["PostgresPassword"] ?? Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+            postgresBuilder.Database = Configuration["PostgresDatabase"] ?? Environment.GetEnvironmentVariable("POSTGRES_DB");
+            postgresBuilder.Port = 5432;
+            postgresBuilder.SslMode = SslMode.Prefer;
+            postgresBuilder.TrustServerCertificate = true;
+            postgresBuilder.Pooling = true;
+
+            services.AddDbContext<ConduitContext>(options => options.UseNpgsql(postgresBuilder.ConnectionString));
 
             services.ConfigureCors();
 
