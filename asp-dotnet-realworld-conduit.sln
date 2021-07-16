@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conduit", "Conduit\Conduit.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{26A3850D-57F5-42A6-A8DA-8734A5C43AC6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrations.SqlServer", "Migrations.SqlServer\Migrations.SqlServer.csproj", "{BDCF726D-FA4D-43E5-9465-11F3225D3496}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrations.Postgres", "Migrations.Postgres\Migrations.Postgres.csproj", "{16B57BC2-B68F-4061-AB2F-1A9B18741C58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{26A3850D-57F5-42A6-A8DA-8734A5C43AC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26A3850D-57F5-42A6-A8DA-8734A5C43AC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26A3850D-57F5-42A6-A8DA-8734A5C43AC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDCF726D-FA4D-43E5-9465-11F3225D3496}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDCF726D-FA4D-43E5-9465-11F3225D3496}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDCF726D-FA4D-43E5-9465-11F3225D3496}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDCF726D-FA4D-43E5-9465-11F3225D3496}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16B57BC2-B68F-4061-AB2F-1A9B18741C58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16B57BC2-B68F-4061-AB2F-1A9B18741C58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16B57BC2-B68F-4061-AB2F-1A9B18741C58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16B57BC2-B68F-4061-AB2F-1A9B18741C58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
